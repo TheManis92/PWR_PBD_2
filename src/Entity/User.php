@@ -218,7 +218,7 @@ class User implements UserInterface {
 
 	public function getRoles() {
 		$roles[] = ROLE::ROLE_USER;
-		if ($this->role !== null) {
+		if ($this->role !== NULL) {
 			$roles[] = $this->role->getRole();
 		}
 
@@ -226,7 +226,7 @@ class User implements UserInterface {
 	}
 
 	public function getSalt() {
-		return null;
+		return NULL;
 	}
 
 	public function getUsername() {
