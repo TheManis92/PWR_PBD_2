@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20210121203605 extends AbstractMigration
+final class Version20210122161217 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -37,8 +37,6 @@ final class Version20210121203605 extends AbstractMigration
         $this->addSql('CREATE TABLE person (id INT UNSIGNED AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, surname VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE review (id INT UNSIGNED AUTO_INCREMENT NOT NULL, movie_id INT UNSIGNED NOT NULL, user_id INT UNSIGNED NOT NULL, rating SMALLINT NOT NULL, title VARCHAR(255) DEFAULT NULL, content LONGTEXT DEFAULT NULL, is_accepted TINYINT(1) NOT NULL, created DATETIME NOT NULL, INDEX IDX_794381C68F93B6FC (movie_id), INDEX IDX_794381C6A76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE role (id INT UNSIGNED AUTO_INCREMENT NOT NULL, role VARCHAR(32) NOT NULL, name VARCHAR(64) NOT NULL, UNIQUE INDEX UNIQ_57698A6A57698A6A (role), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE test1 (name VARCHAR(255) NOT NULL, shortname VARCHAR(255) NOT NULL, PRIMARY KEY(name, shortname)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE test2 (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) DEFAULT NULL, shortname VARCHAR(255) DEFAULT NULL, INDEX IDX_13BB8D585E237E0664082763 (name, shortname), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id INT UNSIGNED AUTO_INCREMENT NOT NULL, role_id INT UNSIGNED NOT NULL, name VARCHAR(64) NOT NULL, password VARCHAR(255) NOT NULL, email VARCHAR(150) NOT NULL, joined DATETIME NOT NULL, last_visit DATETIME NOT NULL, UNIQUE INDEX UNIQ_8D93D6495E237E06 (name), UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), INDEX IDX_8D93D649D60322AC (role_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user_movie (user_id INT UNSIGNED NOT NULL, movie_id INT UNSIGNED NOT NULL, INDEX IDX_FF9C0937A76ED395 (user_id), INDEX IDX_FF9C09378F93B6FC (movie_id), PRIMARY KEY(user_id, movie_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE movie ADD CONSTRAINT FK_1D5EF26F5E237E063EE4B093 FOREIGN KEY (name, short_name) REFERENCES country (name, short_name)');
@@ -64,7 +62,6 @@ final class Version20210121203605 extends AbstractMigration
         $this->addSql('ALTER TABLE movie_submission_lang ADD CONSTRAINT FK_96992163B213FA4 FOREIGN KEY (lang_id) REFERENCES lang (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE review ADD CONSTRAINT FK_794381C68F93B6FC FOREIGN KEY (movie_id) REFERENCES movie (id)');
         $this->addSql('ALTER TABLE review ADD CONSTRAINT FK_794381C6A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
-        $this->addSql('ALTER TABLE test2 ADD CONSTRAINT FK_13BB8D585E237E0664082763 FOREIGN KEY (name, shortname) REFERENCES test1 (name, shortname)');
         $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D649D60322AC FOREIGN KEY (role_id) REFERENCES role (id)');
         $this->addSql('ALTER TABLE user_movie ADD CONSTRAINT FK_FF9C0937A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_movie ADD CONSTRAINT FK_FF9C09378F93B6FC FOREIGN KEY (movie_id) REFERENCES movie (id) ON DELETE CASCADE');
@@ -96,7 +93,6 @@ final class Version20210121203605 extends AbstractMigration
         $this->addSql('ALTER TABLE movie_submission_person DROP FOREIGN KEY FK_8B7B10C0217BBB47');
         $this->addSql('ALTER TABLE movie_submissions_cast DROP FOREIGN KEY FK_4853AC93217BBB47');
         $this->addSql('ALTER TABLE user DROP FOREIGN KEY FK_8D93D649D60322AC');
-        $this->addSql('ALTER TABLE test2 DROP FOREIGN KEY FK_13BB8D585E237E0664082763');
         $this->addSql('ALTER TABLE movie_request DROP FOREIGN KEY FK_1B01CDB1A76ED395');
         $this->addSql('ALTER TABLE review DROP FOREIGN KEY FK_794381C6A76ED395');
         $this->addSql('ALTER TABLE user_movie DROP FOREIGN KEY FK_FF9C0937A76ED395');
@@ -117,8 +113,6 @@ final class Version20210121203605 extends AbstractMigration
         $this->addSql('DROP TABLE person');
         $this->addSql('DROP TABLE review');
         $this->addSql('DROP TABLE role');
-        $this->addSql('DROP TABLE test1');
-        $this->addSql('DROP TABLE test2');
         $this->addSql('DROP TABLE user');
         $this->addSql('DROP TABLE user_movie');
     }
