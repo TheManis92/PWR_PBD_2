@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -69,6 +70,9 @@ class User implements UserInterface {
 		$this->watchlist = new ArrayCollection();
 		$this->reviews = new ArrayCollection();
 		$this->movieRequests = new ArrayCollection();
+
+		$this->joined = new DateTime('now');
+		$this->lastVisit = new DateTime('now');
 	}
 
 	public function getId(): ?int {
@@ -90,8 +94,10 @@ class User implements UserInterface {
 	}
 
 	public function setPassword(string $password): self {
-		$this->password = $password;
-
+		$password = password_hash($password, PASSWORD_BCRYPT);
+		if ($password) {
+			$this->password = $password;
+		}
 		return $this;
 	}
 
@@ -211,9 +217,12 @@ class User implements UserInterface {
 	}
 
 	public function getRoles() {
-		$roles[] = $this->role;
+		$roles[] = ROLE::ROLE_USER;
+		if ($this->role !== null) {
+			$roles[] = $this->role->getRole();
+		}
 
-		return $roles;
+		return array_unique($roles);
 	}
 
 	public function getSalt() {

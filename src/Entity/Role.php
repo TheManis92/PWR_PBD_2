@@ -11,6 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass=RoleRepository::class)
  */
 class Role {
+	const ROLE_ADMINISTRATOR = 'ROLE_ADMINISTRATOR';
+	const ROLE_MODERATOR = 'ROLE_MODERATOR';
+	const ROLE_USER = 'ROLE_USER';
+
 	/**
 	 * @ORM\Id
 	 * @ORM\GeneratedValue

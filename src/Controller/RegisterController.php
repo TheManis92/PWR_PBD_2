@@ -2,27 +2,25 @@
 
 namespace App\Controller;
 
-use App\Document\User;
+use App\Entity\Role;
+use App\Entity\User;
 use App\Form\UserFormType;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\MongoDBException;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Date;
 
 class RegisterController extends AbstractController
 {
-    /**
-     * @Route("/register", name="registration")
-     * @param Request $request
-     * @param DocumentManager $dm
-     * @return RedirectResponse|Response
-     * @throws MongoDBException
-     */
-    public function registerAction(Request $request,DocumentManager $dm)
+	/**
+	 * @Route("/register", name="registration")
+	 * @param Request $request
+	 * @param EntityManagerInterface $em
+	 * @return RedirectResponse|Response
+	 */
+    public function registerAction(Request $request, EntityManagerInterface $em)
     {
 
         if ($this->getUser()) {
@@ -34,13 +32,16 @@ class RegisterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+        	$roleUser = $em->getRepository(Role::class)
+				->findOneBy(['role' => ROLE::ROLE_USER]);
+
             $user = new User();
             $user->setPassword($form->get('password')->getData());
             $user->setName($form->get('name')->getData());
             $user->setEmail($form->get('email')->getData());
-            $user->setJoined(new \DateTime());
-            $dm->persist($user);
-            $dm->flush();
+            $user->setRole($roleUser);
+            $em->persist($user);
+            $em->flush();
 
             return $this->redirect('/');
         }
