@@ -35,12 +35,7 @@ class MovieSubmission {
 
 	/**
 	 * @ORM\ManyToMany(targetEntity=Person::class)
-	 */
-	private $directors;
-
-	/**
-	 * @ORM\ManyToMany(targetEntity=Person::class)
-     * @ORM\JoinTable(name="movie_submissions_cast")
+	 * @ORM\JoinTable(name="movie_submissions_cast")
 	 */
 	private $cast;
 
@@ -49,13 +44,9 @@ class MovieSubmission {
 	 */
 	private $genres;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Country::class)
-     * @ORM\JoinColumns(
-     *      @ORM\JoinColumn(name="name", referencedColumnName="name"),
-     *      @ORM\JoinColumn(name="short_name", referencedColumnName="short_name")
-     * )
-     */
+	/**
+	 * @ORM\ManyToMany(targetEntity=Country::class)
+	 */
 	private $countries;
 
 	/**

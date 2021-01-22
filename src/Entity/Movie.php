@@ -44,13 +44,8 @@ class Movie {
 	private $created;
 
 	/**
-	 * @ORM\ManyToMany(targetEntity=Person::class, inversedBy="directedMovies")
-	 */
-	private $directors;
-
-	/**
 	 * @ORM\ManyToMany(targetEntity=Person::class, inversedBy="participatedInMovies")
-     * @ORM\JoinTable(name="movie_cast")
+	 * @ORM\JoinTable(name="movie_cast")
 	 */
 	private $cast;
 
@@ -59,13 +54,9 @@ class Movie {
 	 */
 	private $genres;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Country::class)
-     * @ORM\JoinColumns(
-     *      @ORM\JoinColumn(name="name", referencedColumnName="name"),
-     *      @ORM\JoinColumn(name="short_name", referencedColumnName="short_name")
-     * )
-     */
+	/**
+	 * @ORM\ManyToMany(targetEntity=Country::class)
+	 */
 	private $countries;
 
 	/**
