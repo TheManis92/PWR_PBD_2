@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/reviews.min.css') }}">
+{% endblock css %}
+
+{% block content %}
+    <div class="container">
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+
+        <button class="btn btn-lg btn-primary" type="submit">
+            Add
+        </button>
+        {{ form_end(form) }}
+    </div>
+
+{% endblock %}

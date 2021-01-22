@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/reviews.min.css') }}">
+{% endblock css %}
+
+{% block content %}
+    {{ form_start(form) }}
+    <div class="container">
+        <div>
+            {{ form_row(form.name, {'attr': {'value': app.user.name}}) }}
+        </div>
+        <div>
+            {{ form_row(form.email, {'attr': {'value': app.user.email}})}}
+        </div>
+        <button class="btn btn-lg btn-primary" type="submit">
+            EDIT
+        </button>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+    </div>
+    {{ form_end(form) }}
+{% endblock content %}

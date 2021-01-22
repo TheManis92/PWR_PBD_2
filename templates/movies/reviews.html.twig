@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <h3 class="center-align">{{ movie.title }}</h3>
+    {% set i = 0 %}
+    {% for elem in reviews %}
+        {% if elem.isAccepted() %}
+            <div class="review">
+                {{ elem.getUser().getName() }}  created: {{ elem.getCreated()|date }}  rating: {{ elem.getRating() }}<br>
+                {{ elem.getComment() }}
+            </div>
+            {% set i = i + 1 %}
+        {% endif %}
+    {% endfor %}
+        {% if i == 0 %}
+            <div class="review">
+                <h4 class="center-align"> NO REVIEWS AVAILABLE </h4>
+            </div>
+        {% endif %}
+    {% if app.user and canPost %}
+        <div class="row">
+            {{ form_start(form) }}
+            <div class="col s6 offset-l2">
+                {{ form_widget(form) }}
+                <button class="btn btn-lg btn-primary" type="submit">
+                    Add comment
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    {% endif %}
+{% endblock content%}

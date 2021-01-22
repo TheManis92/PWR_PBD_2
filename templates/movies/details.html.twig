@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/detalis.css') }}">
+{% endblock css %}
+
+{% block content %}
+    <div class="row">
+        <div class="col s10 offset-l1">
+            <h3 class="center-align">{{ movie.title }}</h3>
+
+                <div class="col s6 offset-l3">
+                    <div id="addFavBT">
+                        <a href="{{ path('movies_reviews', {id: movie.id}) }}">
+                            <button class="btn btn-lg btn-primary" type="submit">
+                                Go to reviews
+                            </button>
+                        </a>
+
+                    </div>
+                    {% if app.user %}
+                        <div id="addFavBT">
+                            {% set contains = false %}
+                            {% for wMovie in app.user.getWatchlist().getMovies() %}
+                                {% if wMovie.getMovie().getId() == movie.id %}
+                                    {% set contains = true %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if not contains %}
+                                <a href="{{ path('movies_watchlist_add', {id: movie.id}) }}">
+                                    <button class="btn btn-lg btn-primary" type="submit">
+                                        Add to watchlist
+                                    </button>
+                                </a>
+                            {% endif %}
+                            {% if contains %}
+                                <a href="{{ path('movies_watchlist_remove', {id: movie.id}) }}">
+                                    <button class="btn btn-lg btn-primary" type="submit">
+                                        Remove from favourite
+                                    </button>
+                                </a>
+                            {% endif %}
+
+
+                        </div>
+                        <div id="editBT">
+                            <a href="{{ path('movies_update', {id: movie.id}) }}">
+                                <button class="btn btn-lg btn-primary" type="button">
+                                    Edit movie
+                                </button>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col s5 offset-l4">
+            {{ movie.plot }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s3 offset-l1">
+            Produced: {{ movie.year }} <br>
+            Rating: {{ movie.rating }} <br>
+            Category: 	{% for elem in movie.genres %}
+                {{ elem }} <br>
+            {% endfor %}
+            Language: {{ movie.lang }} <br>
+            Director: {{ movie.director }} <br>
+            Country: {% for elem in movie.countries %}
+                {{ elem }} <br>
+            {% endfor %}
+        </div>
+        <div class="col s3 offset-l4">
+            Cast: 	<br>
+            {% for elem in cast %}
+                {{ elem.name }} --- {{ elem.character }}<br>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock content %}

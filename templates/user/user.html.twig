@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/user.min.css') }}">
+{% endblock css %}
+
+{% block content %}
+
+    <div class="section no-pad-bot">
+        <div class="container">
+            <br>
+            <h1 class="center brown-text text-lighten-1">{{ app.user.getName() }}</h1>
+            <div class="row center">
+                <div class="col s12">
+                    <h5 class="primary-color-text">
+                        Joined: {{ app.user.getJoined().format('d/m/Y') }}
+                    </h5>
+                </div>
+            </div>
+            <div id="container">
+                <div id="list" class="center-align">
+                    <ul>
+                        <li><a href="{{ path('_user_watchlist') }}">My watchlist</a></li>
+                        <li><a href="{{ path('_user_reviews') }}">My reviews</a></li>
+                        <li><a href="{{ path('movies_new') }}">Add movie</a></li>
+                        {% if app.user.getRole <= 2 %}
+                            <li><a href="{{ path('_request_movie_read') }}">Accept movies</a></li>
+                            <li><a href="{{ path('_reviews_read') }}">Accept reviews</a></li>
+                            <li><a href="{{ path('_genres_new') }}">Add genres</a></li>
+                            <li><a href="{{ path('movies_update_rating') }}">Update movie's rating</a></li>
+                        {% endif %}
+                        <li><a href="{{ path('_user_edit', {id: app.user.getId()}) }}">Settings</a></li>
+                        <li><a href="{{ path('_user_update_password', {id: app.user.getId()}) }}">Change Password</a></li>
+                        <li><a href="{{ path('app_logout') }}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

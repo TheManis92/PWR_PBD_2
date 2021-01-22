@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <ul id="admin-reviews" class="collection with-header">
+                    {% if not reviews.valid() %}
+                        <li class="collection-header">
+                            <h4>No unapproved comments</h4>
+                        </li>
+                    {% else %}
+                        <li class="collection-header">
+                            <h4>New comments</h4>
+                        </li>
+                    {% endif %}
+                    {% for review in reviews %}
+                        <li class="collection-item">
+                            <span id="review-rating">
+                                {{ review.getRating() }}
+                                <i class="material-icons left tooltipped" data-position="top" data-tooltip="rating">grade</i>
+                            </span>
+                            <p>
+                                {{ review.getComment() }}
+
+                                <a id="review-reject" class="secondary-content tooltipped" data-position="top" data-tooltip="reject" href="{{ path('_reviews_delete', {id: review.getId()}) }}">
+                                    <i class="material-icons red-text">clear</i>
+                                </a>
+                                <a id="review-accept" class="secondary-content tooltipped" data-position="top" data-tooltip="accept" href="{{ path('_reviews_accept', {id: review.getId()}) }}">
+                                    <i class="material-icons green-text">done</i>
+                                </a>
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/admin-reviews.min.css') }}">
+{% endblock %}
+
+{% block js %}
+    {{ parent() }}
+    <script src="{{ asset('assets/js/admin-reviews.min.js') }}"></script>
+{% endblock %}

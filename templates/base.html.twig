@@ -1,13 +1,196 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block meta %}
+        <meta name="description" content="Movies, Series Data Base">
+        <meta name="keywords" content="movie,movies,series">
+    {% endblock %}
 
-        {% block javascripts %}{% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    <title>{% block title %}MoviesDB{% endblock %}</title>
+
+    {% block css %}
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/materialize.min.css') }}" media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/init.min.css') }}">
+    {% endblock %}
+    <link rel="shortcut icon" href="{{ asset('assets/img/favicon.ico') }}" />
+</head>
+<body>
+{% block body %}
+    {# desktop navbar #}
+    <nav class="grey darken-3" role="navigation">
+        <div class="nav-wrapper container">
+            {% block navbar %}
+                {% if page_tabs is not defined %}
+                    {% set page_tabs = '' %}
+                {% endif %}
+                {% block navbar_logo %}
+                    <a href="{{ path('home') }}" class="brand-logo">MoviesDB</a>
+                {%  endblock navbar_logo %}
+                <a href="#" data-target="nav-mobile" class="sidenav-trigger">
+                    <i class="material-icons">menu</i>
+                </a>
+                <ul class="right hide-on-med-and-down">
+                    {% block navbar_tabs %}
+                        <li {% if page_tabs == 'home' %}class="active"{% endif %}>
+                            <a href="{{ path('home') }}">
+                                <i class="material-icons left">home</i>
+                                Home
+                            </a>
+                        </li>
+                        <li {% if page_tabs == 'movies_read' %}class="active"{% endif %}>
+                            <a href="{{ path('movies_read', {'from': 0, 'to': 10}) }}">
+                                <i class="material-icons left">movie</i>
+                                Movies and series
+                            </a>
+                        </li>
+                        {% if app.user %}
+                            <li {% if page_tabs == '_user_account' %}class="active"{% endif %}>
+                                <a href="{{ path('_user_account') }}">
+                                    <i class="material-icons left">account_circle</i>
+                                    My Account
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if not app.user %}
+                            <li {% if page_tabs == 'login' %}class="active"{% endif %}>
+                                <a href="{{ path('login') }}">
+                                    <i class="material-icons left">vpn_key</i>
+                                    Login
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endblock navbar_tabs %}
+                </ul>
+                {% block navbar_search %}
+                    <div id="nav-search" class="row">
+                        <div class="col s6 m4 l3 xl4 right">
+                            <form action="{{ path('movies_search') }}" method="post">
+                                <div class="input-field">
+                                    <input id="search" type="search" name="_search" required>
+                                    <label class="label-icon" for="search">
+                                        <i class="material-icons">search</i>
+                                    </label>
+                                    <i class="material-icons">close</i>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% endblock navbar_search %}
+            {% endblock navbar %}
+        </div>
+    </nav>
+
+    {# mobile navbar #}
+    <ul class="sidenav" id="nav-mobile">
+        {% block mobile_navbar %}
+            <li class="active">
+                <a href="#">
+                    <i class="material-icons left">home</i>
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="material-icons left">coronavirus</i>
+                    Tab 2
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="material-icons left">coronavirus</i>
+                    Tab 3
+                </a>
+            </li>
+            <li>
+                <a class="modal-trigger" href="#login">
+                    <i class="material-icons left">vpn_key</i>
+                    Login
+                </a>
+            </li>
+        {% endblock mobile_navbar %}
+    </ul>
+
+    {# page content #}
+    <main>
+        {% block content %}
+            <div class="section no-pad-bot">
+                <div class="container">
+                    <br><br>
+                    <h1 class="center brown-text text-lighten-1">MoviesDB</h1>
+                    <div class="row center">
+                        <div class="col s12">
+                            <h5 class="primary-color-text">
+                                A modern page with lots of movies and honest reviews
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endblock content %}
+    </main>
+
+    {# page footer #}
+    <footer class="page-footer">
+        {% block footer %}
+            {% block footer_content %}
+                {#
+                <div class="container">
+                    <div class="row">
+                        <div class="col s12 l6">
+                            <h5 class="brown-text text-accent-2">Some text</h5>
+                            <p class="primary-color-text">column text lorem ipsum dolor sit amet</p>
+                        </div>
+                    </div>
+                </div>
+                #}
+            {% endblock footer_content %}
+            {% block footer_copyright %}
+                <div class="footer-copyright">
+                    <div class="container">
+                        All rights reserved © 2020 MoviesDB
+                    </div>
+                </div>
+            {% endblock footer_copyright %}
+        {% endblock footer %}
+    </footer>
+
+    {# login modal #}
+    {% block modal_login %}
+        <div id="login" class="modal primary-color">
+            <div class="modal-content">
+                <h4 class="header center">Login</h4>
+                <form action="#" method="post">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="name" type="text" class="validate" required>
+                            <label for="name">Login</label>
+                            <span class="helper-text" data-error="This field is required"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="password" type="password" class="validate" required>
+                            <label for="password">Password</label>
+                            <span class="helper-text" data-error="This field is required"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn waves-effect waves-light">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endblock modal_login %}
+
+    {# js scripts #}
+    {% block js %}
+        <script src="{{ asset('assets/js/jquery-3.2.1.min.js') }}"></script>
+        <script src="{{ asset('assets/js/materialize.min.js') }}"></script>
+        <script src="{{ asset('assets/js/init.min.js')}}"></script>
+    {% endblock js %}
+{% endblock body %}
+</body>
 </html>

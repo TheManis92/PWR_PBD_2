@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/watchlist.min.css') }}">
+{% endblock css %}
+
+{% block content %}
+    <div id="watchlist">
+        <h5 class="center">
+            Watchlist
+        </h5>
+        {% for elem in watchlist.getMovies() %}
+            <div id="row">
+                <div id="title">{{ elem.getMovie().getTitle() }} </div>
+                <div>
+                    <a class="btn-small right black-text" href="{{ path('movies_watchlist_remove', {id: elem.getMovie().getId()}) }}">
+                        Remove from watchlist
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

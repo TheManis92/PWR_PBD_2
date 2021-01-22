@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/movies.css') }}">
+{% endblock css %}
+
+{% block content %}
+    <div class="container">
+        <div class="row" id="list">
+            {% set i = 0 %}
+            {% for movie in movies %}
+                {% set i = i + 1 %}
+                <div class="item">
+                    <div class="info">
+                        <div class="title">
+                            <a href="{{ path('movies_read_one', {id: movie.id}) }}" class="titlelink">
+                                {{movie.title}}
+                            </a>
+                        </div>
+                        <div class="desc">
+                            {{ movie.plot }}
+                        </div>
+                    </div>
+                    <div class="mark">
+                        {{ movie.rating|round(1, "floor")  }}
+                    </div>
+                </div>
+            {% endfor %}
+            {% if i == 0 %}
+                <h3 class="center-align">BRAK FILMÓW</h3>
+            {% endif %}
+        </div>
+        {% if i != 0 %}
+            <div class="row center">
+                <ul class="pagination">
+                    {% if from > 0 %}
+                        <li class="waves-effect">
+                            <a href="{{ path('movies_read', {'from': from-10, 'to': from, 'page': page-1}) }}" style="color: #999">
+                                <i class="material-icons">chevron_left</i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="disabled">
+                            <a href="#" style="color: #444">
+                                <i class="material-icons">chevron_left</i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="active">
+                        <a href="#">{{ page }}</a>
+                    </li>
+                    {% if to < count %}
+                        <li class="waves-effect">
+                            <a href="{{ path('movies_read', {'from': to, 'to': to+10, 'page': page+1}) }}" style="color: #999">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="disabled">
+                            <a href="#" style="color: #444">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+

@@ -1,0 +1,54 @@
+.page
+{
+	width: 1200px;
+	margin: auto;
+}
+.foto
+{
+	float: left;
+}
+.spec
+{
+	float: left;
+	margin: 10px;
+}
+.con_for_rev
+{
+	width: 1200px;
+	margin: auto;
+}
+.review
+{
+	margin: 20px;
+	background-color: #666666;
+}
+#plot
+{
+	text-align: justify;
+	text-justify: inter-word;
+	margin-top: 20px;
+}
+#comment
+{
+	resize: none;
+	background-color: #ffffff;
+	height: 50px;
+}
+#rating
+{
+	background-color: #666666;
+	width: 100px;
+	margin-bottom: 10px;
+}#addFavBT
+{
+	float: left;
+	margin-right: 10px;
+}
+
+#editBT
+{
+	float: left;
+
+
+
+}

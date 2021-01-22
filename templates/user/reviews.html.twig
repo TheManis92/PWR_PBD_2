@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/reviews.min.css') }}">
+{% endblock css %}
+
+{% block content %}
+    <div id="rec-container">
+        Yours comment:
+        <div id="row">
+            {% for elem in reviews %}
+                <div id="title">{{ elem.getMovie().getMovie().getTitle() }}</div>
+                <div id="spec">{{ elem.getCreated() }}   Rating:{{ elem.getRating() }}</div>
+                <div style="clear:both;"></div>
+                <div id="comment">{{ elem.getComment() }}</div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

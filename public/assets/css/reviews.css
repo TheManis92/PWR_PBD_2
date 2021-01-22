@@ -1,0 +1,28 @@
+#list
+{
+	font-size: 20px;
+	float: left;
+}	
+#row
+{
+	width: 1000px;
+	background-color: #666666;
+}
+#rec-container
+{
+	float: left;
+}
+#title
+{
+	font-size: 20px;
+	float: left;
+}
+#spec
+{
+	
+}
+#comment
+{
+	text-align: justify;
+	text-justify: inter-word;
+}

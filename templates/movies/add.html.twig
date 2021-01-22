@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/user.min.css') }}">
+{% endblock css %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+
+        </div>
+        <div class="row" style="margin-top: 50px">
+            {{ form_start(form) }}
+
+            {{ form_widget(form) }}
+            <div>
+                <button id="btn" class="btn btn-lg btn-primary" type="submit">Add movie</button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+
+    </div>
+
+{% endblock content %}
+
+{% block js %}
+    {{ parent() }}
+    <script src="{{ asset('assets/js/select.min.js') }}"></script>
+{% endblock js %}

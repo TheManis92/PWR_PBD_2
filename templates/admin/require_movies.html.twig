@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/reviews.min.css') }}">
+{% endblock css %}
+
+{% block content %}
+    <div class="container">
+        {% for request in requests %}
+            {% if request.getAction() == 1 %}
+                <div class="row center">
+                    <h3>ADD NEW MOVIE</h3>
+                    <h5>{{ request.getNewMovie().getTitle() }}</h5>
+                    <h5>{{ request.getNewMovie().getYear() }}</h5>
+                    <h5>{{ request.getNewMovie().getLang() }}</h5>
+                    <h5>{{ request.getNewMovie().getDirector() }}</h5>
+                </div>
+            {% endif %}
+            {% if request.getAction() == 2 %}
+                <div class="row center">
+                    <h3>EDIT MOVIE</h3>
+                    <h4>OLD MOVIE</h4>
+                    <h5>{{ request.getMovie().getMovie().getTitle() }}</h5>
+                    <h5>{{ request.getMovie().getMovie().getYear() }}</h5>
+                    <h5>{{ request.getMovie().getMovie().getLang() }}</h5>
+                    <h5>{{ request.getMovie().getMovie().getDirector() }}</h5>
+                    <h4>NEW MOVIE</h4>
+                    <h5>{{ request.getNewMovie().getTitle() }}</h5>
+                    <h5>{{ request.getNewMovie().getYear() }}</h5>
+                    <h5>{{ request.getNewMovie().getLang() }}</h5>
+                    <h5>{{ request.getNewMovie().getDirector() }}</h5>
+                </div>
+            {% endif %}
+            {% if request.getAction() == 3 %}
+                <div class="row center">
+                    <h3>REMOVE MOVIE</h3>
+                    <h5>{{ request.getMovie().getTitle() }}</h5>
+                    <h5>{{ request.getMovie().getYear() }}</h5>
+                    <h5>{{ request.getMovie().getLang() }}</h5>
+                    <h5>{{ request.getMovie().getDirector() }}</h5>
+                </div>
+            {% endif %}
+            <div class="row center">
+                <a href="{{ path('_request_movie_accept', {id: request.getId()}) }}">
+                    <button id="btnAcc" class="btn btn-lg btn-primary" type="submit">Approve</button>
+                </a>
+                <a href="{{ path('_request_movie_decline',{id: request.getId()}) }}">
+                    <button id="btnDel" class="btn btn-lg btn-primary" type="submit">Decline</button>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

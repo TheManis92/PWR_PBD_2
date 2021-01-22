@@ -1,0 +1,68 @@
+
+html {
+    background-color: #292929;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.page-footer {
+    background-color: #212121;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.primary-color,
+.sidenav, .modal .modal-footer {
+    background-color: #292929;
+}
+
+.primary-color-text,
+.sidenav > li > a,
+.sidenav li > a > i, .sidenav li > a > [class^="mdi-"],
+.sidenav li > a li > a > [class*="mdi-"],
+.sidenav li > a > i.material-icons {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#nav-search, #nav-search .col {
+    height: 100%;
+}
+
+#nav-mobile {
+    width: 200px;
+}
+
+/* nav logo to the right, search to the left on small screens */
+@media only screen and (max-width: 600px) {
+    nav .brand-logo {
+        right: 0.5rem;
+        left: auto;
+    }
+    #nav-search .col {
+        float: left !important;
+    }
+}
+
+form input, form textarea {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+a {
+    color: #757575;
+}
+
+a:hover {
+    color: #5d4037;
+}
+
+nav a:hover {
+    color: #fff;
+}
