@@ -2,29 +2,26 @@
 
 namespace App\DataFixtures;
 
-use App\Document\EmbedMovieRef;
-use App\Document\EmbedUserRef;
-use App\Document\Review;
+use App\DBAL\EnumMovieRequestAction;
+use App\Entity\Country;
+use App\Entity\Genre;
+use App\Entity\Lang;
+use App\Entity\Movie;
+use App\Entity\MovieRequest;
+use App\Entity\MovieSubmission;
+use App\Entity\Person;
+use App\Entity\Review;
+use App\Entity\Role;
+use App\Entity\User;
+use Doctrine\Bundle\FixturesBundle\Fixture;
 use Exception;
-use DateTime;
-
-use App\Document\CrewMember;
-use App\Document\Genre;
-use App\Document\Movie;
-use App\Document\User;
-use App\Document\Watchlist;
-use App\Document\RequestMovie;
-use App\Document\EmbeddedMovie;
-
 use Doctrine\Common\Collections\ArrayCollection;
-
-use Doctrine\Bundle\MongoDBBundle\Fixture\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
 
 class AppFixtures extends Fixture {
 	// run command
-	// php bin/console doctrine:mongodb:fixtures:load
+	// php bin/console doctrine:fixtures:load
 	private const AMOUNT_MOVIES = 20;
 	private const AMOUNT_USERS = 20;
 	private const AMOUNT_REQUESTS = 20;
@@ -81,32 +78,44 @@ PLOT;
 		'russian', 'french', 'croatian'
 	];
 
+	/*
 	private const CREW_FUNCTIONS_PRIORITY = [
 		'actor'				=>	1,
 		'producer'			=>	2,
 		'director'			=>	3,
 		'costume designer'	=>	10
 	];
+	*/
 
 	private const USERS = [
-		'Avgariat'	=>	[
-			'password'	=>	'ImSickOfThis',
-			'role'		=>	User::ROLE_ADMINISTRATOR,
-			'email'		=>	'fake@waitingfortheend.com'
+		'admin'	=>	[
+			'password'	=>	'admin',
+			'role'		=>	Role::ROLE_ADMINISTRATOR,
+			'email'		=>	'admin@admin.com'
 		],
-		'Manis'		=>	[
-			'password'	=>	'1234',
-			'role'		=>	USER::ROLE_ADMINISTRATOR,
-			'email'		=>	'mateuszkogut007@gmail.com'
-		]
+		'user'		=>	[
+			'password'	=>	'user',
+			'role'		=>	Role::ROLE_USER,
+			'email'		=>	'user@user.com'
+		],
+		'moderator'		=>	[
+			'password'	=>	'moderator',
+			'role'		=>	Role::ROLE_MODERATOR,
+			'email'		=>	'moderator@moderator.com'
+		],
 	];
+	private array $genres;
+	private array $langs;
+	private array $countries;
+	private array $cast;
 
 
 	private static function getRandomElement($arr) {
 		return $arr[array_rand($arr)];
 	}
 
-	private static function getRandomElements($arr, $from, $to, $amount=null) {
+	private static function getRandomElements($arr, $from, $to,
+											  $amount=null): ArrayCollection {
 		if ($amount === null) $amount = mt_rand($from, $to);
 		$collection = new ArrayCollection();
 		for ($i = 0; $i < $amount; $i++) {
@@ -120,9 +129,9 @@ PLOT;
 		return self::getRandomElement(self::MOVIE_TITLES);
 	}
 
-	private static function getRandomGenres($from, $to, $amount=null) {
+	private function getRandomGenres($from, $to, $amount=null): ArrayCollection {
 		return self::getRandomElements(
-			self::MOVIE_GENRES, $from, $to, $amount);
+			$this->genres, $from, $to, $amount);
 	}
 
 	private static function getRandomName() {
@@ -133,19 +142,17 @@ PLOT;
 		return self::getRandomElement(self::SURNAMES);
 	}
 
-	private static function getRandomFullName() {
-		return self::getRandomName() . ' ' . self::getRandomSurname();
-	}
-
-	private static function getRandomCountries($from, $to, $amount=null) {
+	private function getRandomCountries($from, $to, $amount=null): ArrayCollection {
 		return self::getRandomElements(
-			self::COUNTRIES, $from, $to, $amount);
+			$this->countries, $from, $to, $amount);
 	}
 
-	private static function getRandomLanguage() {
-		return self::getRandomElement(self::LANGUAGES);
+	private function getRandomLangs($from, $to, $amount=null): ArrayCollection {
+		return self::getRandomElements(
+			$this->langs, $from, $to, $amount);
 	}
 
+	/*
 	private static function getRandomCrewAttributes() {
 		$key = array_rand(self::CREW_FUNCTIONS_PRIORITY);
 		$attrs = [
@@ -156,23 +163,14 @@ PLOT;
 
 		return $attrs;
 	}
+	*/
 
-	private static function getRandomCast($from, $to, $amount=null) {
-		if ($amount === null) $amount = mt_rand($from, $to);
-		$collection = new ArrayCollection();
-		for ($i = 0; $i < $amount; $i++) {
-			$crewAttrs = self::getRandomCrewAttributes();
-			$crewMember = new CrewMember($crewAttrs['priority'],
-				self::getRandomFullName());
-			$crewMember->setFunction($crewAttrs['function'])
-				->setCharacter($crewAttrs['character']);
-			$collection->add($crewMember);
-		}
-
-		return $collection;
+	private function getRandomCast($from, $to, $amount=null): ArrayCollection {
+		return self::getRandomElements(
+			$this->cast, $from, $to, $amount);
 	}
 
-	private static function getRandomString() {
+	private static function getRandomString(): ?string {
 		try {
 			$str = bin2hex(random_bytes(6));
 		}
@@ -182,67 +180,119 @@ PLOT;
 		return $str;
 	}
 
-	private static function getRandomMovie() {
-		$movie = new Movie(self::getRandomMovieTitle());
-		$movie->setYear(mt_rand(2000, 2020))
-			->setRating(round(mt_rand(1, 100) / 10, 2))
+	private function getRandomMovie(): Movie {
+		$movie = new Movie();
+		$movie->setTitle(self::getRandomMovieTitle())
+			->setYear(mt_rand(2000, 2020))
 			->setPlot(self::MOVIE_PLOT)
-			->setGenres(self::getRandomGenres(1, 3)->toArray())
-			->setDirector(self::getRandomFullName())
-			->setCountries(self::getRandomCountries(1, 2)->toArray())
-			->setLang(self::getRandomLanguage())
-			->setCast(self::getRandomCast(3, 20));
+			->addGenres($this->getRandomGenres(1, 3)->toArray())
+			->addCountries($this->getRandomCountries(1, 2)->toArray())
+			->addLangs($this->getRandomLangs(1, 2)->toArray())
+			->addCastBulk($this->getRandomCast(3, 20)->toArray());
 		return $movie;
 	}
 
-	private static function shouldBeNull() {
+	private static function shouldBeNull(): bool {
 		$percent_chance = 5;
 		return mt_rand(0, 10000) < $percent_chance * 100;
 	}
 
-	private static function getRandomRequestMovie() {
-		$movie = self::getRandomMovie();
-		$requestMovie = new EmbeddedMovie($movie->getTitle());
-		$requestMovie->setYear(
-				self::shouldBeNull() ? null : $movie->getYear())
-			->setRating(
-				self::shouldBeNull() ? null : $movie->getRating())
+	private function getRandomMovieSubmission(): MovieSubmission {
+		$movie = $this->getRandomMovie();
+		$movieSubmission = new MovieSubmission();
+		$movieSubmission->setTitle(self::getRandomMovieTitle())
+			->setYear(
+				self::shouldBeNull() ? [] : $movie->getYear())
 			->setPlot(
-				self::shouldBeNull() ? null : $movie->getPlot())
-			->setGenres(
-				self::shouldBeNull() ? null : $movie->getGenres())
-			->setDirector(
-				self::shouldBeNull() ? null : $movie->getDirector())
-			->setCountries(
-				self::shouldBeNull() ? null : $movie->getCountries())
-			->setLang(
-				self::shouldBeNull() ? null : $movie->getLang())
-			->setCast(
-				self::shouldBeNull() ? null : $movie->getCast());
-		return $requestMovie;
+				self::shouldBeNull() ? [] : $movie->getPlot())
+			->addGenres(
+				self::shouldBeNull() ? [] : $movie->getGenres())
+			->addCountries(
+				self::shouldBeNull() ? [] : $movie->getCountries())
+			->addLangs(
+				self::shouldBeNull() ? [] : $movie->getLangs())
+			->addCastBulk(
+				self::shouldBeNull() ? [] : $movie->getCast());
+		return $movieSubmission;
 	}
 
 
 	public function load(ObjectManager $manager) {
+		// add roles
+		$roles = [
+			Role::ROLE_USER				=>	'User',
+			Role::ROLE_MODERATOR		=>	'Moderator',
+			Role::ROLE_ADMINISTRATOR	=>	'Administrator'
+		];
+
+		foreach ($roles as $role => $roleName) {
+			$roleObject = new Role();
+			$roleObject->setRole($role)
+				->setName($roleName);
+			$manager->persist($roleObject);
+		}
+		$manager->flush();
+
 		// load genres
+		$loadedGenres = [];
 		foreach (self::MOVIE_GENRES as $genreName) {
-			$genre = new Genre($genreName);
+			$genre = new Genre();
+			$genre->setName($genreName);
 
 			$manager->persist($genre);
+			$loadedGenres[] = $genre;
 		}
+		$this->genres = $loadedGenres;
+
+		// load countries
+		$loadedCountries = [];
+		foreach (self::COUNTRIES as $countryName) {
+			$country = new Country();
+			$country->setName($countryName);
+
+			$manager->persist($country);
+			$loadedCountries[] = $country;
+		}
+		$this->countries = $loadedCountries;
+
+		// load cast
+		$loadedCast = [];
+		foreach (self::NAMES as $name) {
+			foreach (self::SURNAMES as $surname) {
+				$person = new Person();
+				$person->setName($name)
+					->setSurname($surname);
+
+				$manager->persist($person);
+				$loadedCast[] = $person;
+			}
+		}
+		$this->cast = $loadedCast;
+
+		// load langs
+		$loadedLangs = [];
+		foreach (self::LANGUAGES as $langName) {
+			$lang = new Lang();
+			$lang->setName($langName);
+
+			$manager->persist($lang);
+			$loadedLangs[] = $lang;
+		}
+		$this->langs = $loadedLangs;
+
+		$manager->flush();
 
 		// load movies
 		$loadedMovies = [];
 		for ($i = 0; $i < self::AMOUNT_MOVIES; $i++) {
-			$movie = new Movie(self::getRandomMovieTitle() . $i);
-			$movie->setYear(mt_rand(2000, 2020))
-				->setRating(round(mt_rand(1, 100) / 10, 2))
+			$movie = new Movie();
+			$movie->setTitle(self::getRandomMovieTitle() . $i)
+				->setYear(mt_rand(2000, 2020))
 				->setPlot(self::MOVIE_PLOT)
-				->setGenres(self::getRandomGenres(1, 3)->toArray())
-				->setDirector(self::getRandomFullName())
-				->setCountries(self::getRandomCountries(1, 2)->toArray())
-				->setLang(self::getRandomLanguage())
-				->setCast(self::getRandomCast(3, 20));
+				->addGenres(self::getRandomGenres(1, 3)->toArray())
+				->addCountries(self::getRandomCountries(1, 2)->toArray())
+				->addLangs(self::getRandomLangs(1, 2)->toArray())
+				->addCastBulk(self::getRandomCast(3, 20)->toArray());
 
 			$manager->persist($movie);
 			$loadedMovies[] = $movie;
@@ -250,16 +300,13 @@ PLOT;
 
 		// load defined users
 		foreach (self::USERS as $userName => $userData) {
-			$watchlist = new Watchlist(Watchlist::VISIBILITY_PUBLIC);
-			$user = new User($userName, $userData['password'], $userData['role'],
-				$userData['email'], $watchlist);
+			$role = $manager->getRepository(Role::class)
+				->findOneBy(['role' => $userData['role']]);
+			$user = new User();
 			$user->setName($userName)
 				->setPassword($userData['password'])
-				->setRole($userData['role'])
-				->setEmail($userData['email'])
-				->setJoined(new DateTime('now'))
-				->setLastVisit(new DateTime('now'))
-				->setWatchlist($watchlist);
+				->setRole($role)
+				->setEmail($userData['email']);
 
 			$manager->persist($user);
 		}
@@ -273,9 +320,13 @@ PLOT;
 				'@' . self::getRandomString() . '.com';
 			if ($name === null) continue;
 
-			$watchlist = new Watchlist(Watchlist::VISIBILITY_PUBLIC);
-			$user = new User($name, $password, User::ROLE_USER,
-				$email, $watchlist);
+			$role = $manager->getRepository(Role::class)
+				->findOneBy(['role' => ROLE::ROLE_USER]);
+			$user = new User();
+			$user->setName($name)
+				->setPassword($password)
+				->setRole($role)
+				->setEmail($email);
 
 			$manager->persist($user);
 			$loadedUsers[] = $user;
@@ -285,35 +336,36 @@ PLOT;
 
 		// load requests
 		for ($i = 0; $i < self::AMOUNT_REQUESTS; $i++) {
-			$request = new RequestMovie(mt_rand(0, 1000) < 5000 ?
-				RequestMovie::ACTION_ADD : RequestMovie::ACTION_EDIT);
-			$movie = self::getRandomRequestMovie();
+			$loadedUser = $loadedUsers[array_rand($loadedUsers)];
 			$loadedMovie = $loadedMovies[array_rand($loadedMovies)];
+			$movieSubmission = self::getRandomMovieSubmission();
 
-			$embedMovieRef = new EmbedMovieRef($loadedMovie, $loadedMovie->getTitle());
+			$movieRequest = new MovieRequest();
+			$movieRequest->setAction(mt_rand(0, 1000) < 5000 ?
+				EnumMovieRequestAction::ACTION_ADD : EnumMovieRequestAction::ACTION_EDIT)
+				->setMovieSubmission($movieSubmission)
+				->setCurrentMovie($loadedMovie)
+				->setUser($loadedUser);
 
-			$request->setMovie($embedMovieRef)
-				->setNewMovie($movie)
-				->setCreated(new DateTime('now'))
-				->setClosed(null);
-
-			$manager->persist($request);
+			$manager->persist($movieSubmission);
+			$manager->persist($movieRequest);
 		}
 
 		// load reviews
 		for ($i = 0; $i < self::AMOUNT_REVIEWS; $i++) {
 			$loadedUser = $loadedUsers[array_rand($loadedUsers)];
 			$loadedMovie = $loadedMovies[array_rand($loadedMovies)];
-
-			$embedMovieRef = new EmbedMovieRef($loadedMovie, $loadedMovie->getTitle());
-
-			$embedUserRef = new EmbedUserRef($loadedUser, $loadedUser->getName());
-
-			$review = new Review(mt_rand(1, 10), $embedUserRef, $embedMovieRef);
 			$shallAddComment = mt_rand(0, 10000) > 8000;
-			$review->setCreated(new DateTime('now'))
-				->setAccepted($shallAddComment ? mt_rand(0, 10000) > 5000 : true)
-				->setComment($shallAddComment ? 'What a great movie' : null);
+
+			$review = new Review();
+			$review->setUser($loadedUser)
+				->setMovie($loadedMovie)
+				->setRating(mt_rand(1, 10))
+				->setIsAccepted($shallAddComment ? mt_rand(0, 10000) > 5000 : true)
+				->setContent($shallAddComment ? 'What a great movie' : null);
+			if ($review->getContent()) {
+				$review->setTitle('Wonderful experience');
+			}
 
 			$manager->persist($review);
 		}
