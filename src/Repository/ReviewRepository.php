@@ -2,11 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Movie;
 use App\Entity\Review;
-use App\QueryResult\MovieAverageRating;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
