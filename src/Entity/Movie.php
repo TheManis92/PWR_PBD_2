@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -80,7 +81,6 @@ class Movie {
 	private $movieRequests;
 
 	public function __construct() {
-		$this->directors = new ArrayCollection();
 		$this->cast = new ArrayCollection();
 		$this->genres = new ArrayCollection();
 		$this->countries = new ArrayCollection();
@@ -88,6 +88,7 @@ class Movie {
 		$this->fanciedByUsers = new ArrayCollection();
 		$this->reviews = new ArrayCollection();
 		$this->movieRequests = new ArrayCollection();
+		$this->created = new DateTime('now');
 	}
 
 	public function getId(): ?int {
@@ -147,34 +148,21 @@ class Movie {
 	/**
 	 * @return Collection|Person[]
 	 */
-	public function getDirectors(): Collection {
-		return $this->directors;
+	public function getCast(): Collection {
+		return $this->cast;
 	}
 
-	public function addDirector(Person $director): self {
-		if (!$this->directors->contains($director)) {
-			$this->directors[] = $director;
+	public function addCast(Person $person): self {
+		if (!$this->cast->contains($person)) {
+			$this->cast[] = $person;
 		}
 
 		return $this;
 	}
 
-	public function removeDirector(Person $director): self {
-		$this->directors->removeElement($director);
-
-		return $this;
-	}
-
-	/**
-	 * @return Collection|Person[]
-	 */
-	public function getCast(): Collection {
-		return $this->cast;
-	}
-
-	public function addCast(Person $cast): self {
-		if (!$this->cast->contains($cast)) {
-			$this->cast[] = $cast;
+	public function addCastBulk($people): self {
+		foreach ($people as $person) {
+			$this->addCast($person);
 		}
 
 		return $this;
@@ -201,6 +189,14 @@ class Movie {
 		return $this;
 	}
 
+	public function addGenres($genres): self {
+		foreach ($genres as $genre) {
+			$this->addGenre($genre);
+		}
+
+		return $this;
+	}
+
 	public function removeGenre(Genre $genre): self {
 		$this->genres->removeElement($genre);
 
@@ -222,6 +218,14 @@ class Movie {
 		return $this;
 	}
 
+	public function addCountries($countries): self {
+		foreach ($countries as $country) {
+			$this->addCountry($country);
+		}
+
+		return $this;
+	}
+
 	public function removeCountry(Country $country): self {
 		$this->countries->removeElement($country);
 
@@ -238,6 +242,14 @@ class Movie {
 	public function addLang(Lang $lang): self {
 		if (!$this->langs->contains($lang)) {
 			$this->langs[] = $lang;
+		}
+
+		return $this;
+	}
+
+	public function addLangs($langs): self {
+		foreach ($langs as $lang) {
+			$this->addLang($lang);
 		}
 
 		return $this;

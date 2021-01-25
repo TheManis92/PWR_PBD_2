@@ -60,7 +60,6 @@ class MovieSubmission {
 	private $movieRequest;
 
 	public function __construct() {
-		$this->directors = new ArrayCollection();
 		$this->cast = new ArrayCollection();
 		$this->genres = new ArrayCollection();
 		$this->countries = new ArrayCollection();
@@ -104,27 +103,6 @@ class MovieSubmission {
 	/**
 	 * @return Collection|Person[]
 	 */
-	public function getDirectors(): Collection {
-		return $this->directors;
-	}
-
-	public function addDirector(Person $director): self {
-		if (!$this->directors->contains($director)) {
-			$this->directors[] = $director;
-		}
-
-		return $this;
-	}
-
-	public function removeDirector(Person $director): self {
-		$this->directors->removeElement($director);
-
-		return $this;
-	}
-
-	/**
-	 * @return Collection|Person[]
-	 */
 	public function getCast(): Collection {
 		return $this->cast;
 	}
@@ -132,6 +110,14 @@ class MovieSubmission {
 	public function addCast(Person $cast): self {
 		if (!$this->cast->contains($cast)) {
 			$this->cast[] = $cast;
+		}
+
+		return $this;
+	}
+
+	public function addCastBulk($people): self {
+		foreach ($people as $person) {
+			$this->addCast($person);
 		}
 
 		return $this;
@@ -158,6 +144,14 @@ class MovieSubmission {
 		return $this;
 	}
 
+	public function addGenres($genres): self {
+		foreach ($genres as $genre) {
+			$this->addGenre($genre);
+		}
+
+		return $this;
+	}
+
 	public function removeGenre(Genre $genre): self {
 		$this->genres->removeElement($genre);
 
@@ -179,6 +173,14 @@ class MovieSubmission {
 		return $this;
 	}
 
+	public function addCountries($countries): self {
+		foreach ($countries as $country) {
+			$this->addCountry($country);
+		}
+
+		return $this;
+	}
+
 	public function removeCountry(Country $country): self {
 		$this->countries->removeElement($country);
 
@@ -195,6 +197,14 @@ class MovieSubmission {
 	public function addLang(Lang $lang): self {
 		if (!$this->langs->contains($lang)) {
 			$this->langs[] = $lang;
+		}
+
+		return $this;
+	}
+
+	public function addLangs($langs): self {
+		foreach ($langs as $lang) {
+			$this->addLang($lang);
 		}
 
 		return $this;

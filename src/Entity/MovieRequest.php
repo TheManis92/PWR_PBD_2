@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MovieRequestRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -41,6 +42,10 @@ class MovieRequest {
 	 * @ORM\ManyToOne(targetEntity=Movie::class, inversedBy="movieRequests")
 	 */
 	private $currentMovie;
+
+	public function __construct() {
+		$this->created = new DateTime('now');
+	}
 
 	public function getId(): ?int {
 		return $this->id;

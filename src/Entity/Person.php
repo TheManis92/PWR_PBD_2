@@ -29,17 +29,11 @@ class Person {
 	private $surname;
 
 	/**
-	 * @ORM\ManyToMany(targetEntity=Movie::class, mappedBy="directors")
-	 */
-	private $directedMovies;
-
-	/**
 	 * @ORM\ManyToMany(targetEntity=Movie::class, mappedBy="cast")
 	 */
 	private $participatedInMovies;
 
 	public function __construct() {
-		$this->directedMovies = new ArrayCollection();
 		$this->participatedInMovies = new ArrayCollection();
 	}
 
@@ -63,30 +57,6 @@ class Person {
 
 	public function setSurname(string $surname): self {
 		$this->surname = $surname;
-
-		return $this;
-	}
-
-	/**
-	 * @return Collection|Movie[]
-	 */
-	public function getDirectedMovies(): Collection {
-		return $this->directedMovies;
-	}
-
-	public function addDirectedMovie(Movie $directedMovie): self {
-		if (!$this->directedMovies->contains($directedMovie)) {
-			$this->directedMovies[] = $directedMovie;
-			$directedMovie->addDirector($this);
-		}
-
-		return $this;
-	}
-
-	public function removeDirectedMovie(Movie $directedMovie): self {
-		if ($this->directedMovies->removeElement($directedMovie)) {
-			$directedMovie->removeDirector($this);
-		}
 
 		return $this;
 	}

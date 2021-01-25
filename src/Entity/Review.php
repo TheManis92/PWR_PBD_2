@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ReviewRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -52,6 +53,10 @@ class Review {
 	 * @ORM\JoinColumn(nullable=false)
 	 */
 	private $user;
+
+	public function __construct() {
+		$this->created = new DateTime('now');
+	}
 
 	public function getId(): ?int {
 		return $this->id;
