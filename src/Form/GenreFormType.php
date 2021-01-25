@@ -2,7 +2,8 @@
 
 namespace App\Form;
 
-use App\Document\Genre;
+
+use App\Entity\Genre;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;

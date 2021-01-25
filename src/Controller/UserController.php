@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Document\Review;
-use App\Document\User;
+use App\Entity\Review;
+use App\Entity\User;
 use App\Form\AdminUserFormType;
 use App\Form\ChangePasswordFormType;
 use App\Form\UserFormType;
-use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ORM\EntityManagerInterface;
 use PhpParser\Comment\Doc;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -35,21 +35,20 @@ class UserController extends AbstractController{
     }
 
 
-
     /**
      * @Route("/edit/{id}", name="_edit")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param ValidatorInterface $validator
      * @param Request $request
      * @return Response
      */
 
-    public function edit(String $id, DocumentManager $documentManager, ValidatorInterface $validator, Request $request)
+    public function edit(String $id, EntityManagerInterface $entityManager, ValidatorInterface $validator, Request $request)
     {
         if(!$this->getUser())
             return $this->redirectToRoute('login');
-        $user = $documentManager->getRepository(User::class)->findOneBy(["id" => $id]);
+        $user = $entityManager->getRepository(User::class)->findOneBy(["id" => $id]);
         if($this->getUser()->getId() == $user->getId())
         {
             $form = $this->createForm(UserFormType::class);
@@ -71,7 +70,7 @@ class UserController extends AbstractController{
                 $user->setName($updatedUser->getName());
                 $user->setEmail($updatedUser->getEmail());
                 try{
-                    $documentManager->flush();
+                    $entityManager->flush();
                 } catch (\Exception $e) {
                     return $this->render('test/error.html.twig', ["error" => $e]);
                 }
@@ -105,7 +104,7 @@ class UserController extends AbstractController{
                 $user->setRole($updatedUser->getRole());
                 $user->setPassword($updatedUser->getPassword());
                 try{
-                    $documentManager->flush();
+                    $entityManager->flush();
                 } catch (\Exception $e) {
                     return $this->render('test/error.html.twig', ["error" => $e]);
                 }
@@ -125,13 +124,13 @@ class UserController extends AbstractController{
      * @param Request $request
      * @param UserPasswordEncoderInterface $encoder
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param ValidatorInterface $validator
      * @return Response
      */
-    public function updatePassword(Request $request, UserPasswordEncoderInterface $encoder, String $id, DocumentManager $documentManager, ValidatorInterface $validator)
+    public function updatePassword(Request $request, UserPasswordEncoderInterface $encoder, String $id, EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
-        $user = $documentManager->getRepository(User::class)->findOneBy(["id" => $id]);
+        $user = $entityManager->getRepository(User::class)->findOneBy(["id" => $id]);
         $form = $this->createForm(ChangePasswordFormType::class);
         if($this->getUser()->getId() == $user->getId()){
 
@@ -151,7 +150,7 @@ class UserController extends AbstractController{
                     $user->setPassword($form->get('newPassword'));
 
                     try{
-                        $documentManager->flush();
+                        $entityManager->flush();
                     } catch (\Exception $e)
                     {
                         return $this->render('test/error.html.twig', ["error" => $e]);
@@ -185,17 +184,17 @@ class UserController extends AbstractController{
 
     /**
      * @Route("/reviews/", name="_reviews")
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return RedirectResponse|Response
      */
-    public function showUserReviews(DocumentManager $documentManager)
+    public function showUserReviews(EntityManagerInterface $entityManager)
     {
         if(!$this->getUser())
         {
             return $this->redirectToRoute('login');
         }
 
-        $reviews = $documentManager->getRepository(Review::class)->findAllByUser($this->getUser(), 0, 100);
+        $reviews = $entityManager->getRepository(Review::class)->findBy(["user" => $this->getUser()]);
 
         return $this->render('user/reviews.html.twig', ["reviews" => $reviews, "page_tabs" => '_user_account']);
 

@@ -2,13 +2,10 @@
 
 namespace App\Form;
 
-use App\Document\EmbeddedMovie;
-use App\Document\Genre;
-use App\Document\Movie;
-use Doctrine\Bundle\MongoDBBundle\Form\Type\DocumentType;
+use App\Entity\Genre;
+use App\Entity\Movie;
 use Doctrine\DBAL\Types\ArrayType;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\Types\FloatType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -26,7 +23,7 @@ class MovieFormType extends AbstractType
         $builder->add('rating', NumberType::class);
 
 
-        $builder->add('genres', DocumentType::class, array(
+        $builder->add('genres', EntityType::class, array(
             'class' => Genre::class,
             'choice_label' => 'name',
             'choice_value' => 'name',
@@ -44,7 +41,7 @@ class MovieFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => EmbeddedMovie::class,
+            'data_class' => Movie::class,
         ));
     }
 }

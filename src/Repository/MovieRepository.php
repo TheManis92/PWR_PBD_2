@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Iterator;
+use PhpParser\Builder;
 
 /**
  * @method Movie|null find($id, $lockMode = null, $lockVersion = null)
@@ -18,6 +20,29 @@ class MovieRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Movie::class);
     }
+
+    /**
+     * @param int $from
+     * @param int $to
+     * @param array|null $fields
+     * @param array|null $sort
+     */
+    public function findAllEx(int $from=0, $to=0, ?array $fields=null,
+                              ?array $sort=null) {
+        return $this->createQueryBuilder('m')
+            ->setFirstResult($from)
+            ->setMaxResults($to + $from);
+
+    }
+
+    public function getCount() {
+        return $this->createQueryBuilder('m')
+                ->select('count(m.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+    }
+
+
 
     // /**
     //  * @return Movie[] Returns an array of Movie objects

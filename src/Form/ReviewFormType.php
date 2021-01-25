@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Document\Review;
+use App\Entity\Review;
 use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;

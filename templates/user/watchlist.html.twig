@@ -10,11 +10,11 @@
         <h5 class="center">
             Watchlist
         </h5>
-        {% for elem in watchlist.getMovies() %}
+        {% for elem in watchlist %}
             <div id="row">
-                <div id="title">{{ elem.getMovie().getTitle() }} </div>
+                <div id="title">{{ elem.getTitle() }} </div>
                 <div>
-                    <a class="btn-small right black-text" href="{{ path('movies_watchlist_remove', {id: elem.getMovie().getId()}) }}">
+                    <a class="btn-small right black-text" href="{{ path('movies_watchlist_remove', {id: elem.getId()}) }}">
                         Remove from watchlist
                     </a>
                 </div>

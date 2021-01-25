@@ -2,10 +2,8 @@
 
 namespace App\Controller;
 
-use App\Document\Genre;
+use App\Entity\Genre;
 use App\Form\GenreFormType;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\MongoDBException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -24,10 +22,10 @@ class GenreController extends AbstractController {
      * @param DocumentManager $documentManager
      * @return Response
      */
-    public function read(DocumentManager $documentManager)
+    public function read(EntityManagerInterface $entityManager)
     {
 
-        $genres = $documentManager->getRepository(Genre::class)->findBy([]);
+        $genres = $entityManager->getRepository(Genre::class)->findBy([]);
         return $this->render('test/read_genres.html.twig', [
             "genres" => $genres
         ] );
@@ -36,12 +34,12 @@ class GenreController extends AbstractController {
     /**
      * @Route("/read/{id}", name="_read_id", methods={"GET"})
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function readOne(String $id, DocumentManager $documentManager)
+    public function readOne(String $id, EntityManagerInterface $entityManager)
     {
-        $genre = $documentManager->getRepository(Genre::class)->findOneBy(["id" => $id]);
+        $genre = $entityManager->getRepository(Genre::class)->findOneBy(["id" => $id]);
         return $this->render('test/read_genre.html.twig', [
             "genre" => $genre
         ] );
@@ -51,16 +49,16 @@ class GenreController extends AbstractController {
      * @Route("/new", name="_new")
      * @param Request $request
      * @param ValidatorInterface $validator
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function new(Request $request, ValidatorInterface $validator, DocumentManager $documentManager)
+    public function new(Request $request, ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
         if(!$this->getUser()){
             return $this->redirectToRoute('login');
         }
 
-        if($this->getUser()->getRole()==3){
+        if($this->getUser()->getRole()->getName()=="ROLE_USER"){
             return $this->redirectToRoute('home');
         }
         $form = $this->createForm(GenreFormType::class);
@@ -82,8 +80,8 @@ class GenreController extends AbstractController {
 
 
             try {
-                $documentManager->persist($genre);
-                $documentManager->flush();
+                $entityManager->persist($genre);
+                $entityManager->flush();
             }catch (\Exception $e){
                 return $this->json(['error' => true]);
             }
@@ -98,19 +96,19 @@ class GenreController extends AbstractController {
      * @Route("/update/{id}", name="_update")
      * @param Request $request
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param ValidatorInterface $validator
      * @return Response
      */
     public function update(Request $request, String $id,
-                           DocumentManager $documentManager, ValidatorInterface $validator
+                           EntityManagerInterface $entityManager, ValidatorInterface $validator
                            )
     {
         $form = $this->createForm(GenreFormType::class);
 
         $form->handleRequest($request);
 
-        $genre = $documentManager->getRepository(Genre::class)->findOneBy(["id" => $id]);
+        $genre = $entityManager->getRepository(Genre::class)->findOneBy(["id" => $id]);
 
         if ($form->isSubmitted()) {
             if(!$form->isValid())
@@ -126,7 +124,7 @@ class GenreController extends AbstractController {
             $genre->setName($form->getData()->getName());
 
             try {
-                $documentManager->flush();
+                $entityManager->flush();
             } catch (\Exception $e) {
                 return $this->render('index/index.html.twig', ['error' => true]);
             }
@@ -142,18 +140,14 @@ class GenreController extends AbstractController {
     /**
      * @Route("/delete/{id}", name="_delete")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function delete(String $id, DocumentManager $documentManager)
+    public function delete(String $id, EntityManagerInterface $entityManager)
     {
-        try {
-            $genre = $documentManager->getRepository(Genre::class)->findOneBy(["id"=>$id]);
-            $documentManager->remove($genre);
-            $documentManager->flush();
-        } catch (MongoDBException $e) {
-        }
-
+        $genre = $entityManager->getRepository(Genre::class)->findOneBy(["id"=>$id]);
+        $entityManager->remove($genre);
+        $entityManager->flush();
         return $this->redirectToRoute('home');
     }
 

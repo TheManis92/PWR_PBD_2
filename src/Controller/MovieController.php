@@ -2,18 +2,14 @@
 
 namespace App\Controller;
 
-use App\Document\EmbedMovieRef;
-use App\Document\EmbedUserRef;
-use App\Document\Genre;
-use App\Document\Movie;
-use App\Document\RequestMovie;
-use App\Document\Review;
+use App\Entity\Genre;
+use App\Entity\Movie;
+use App\Entity\MovieRequest;
+use App\Entity\Review;
 use App\Form\MovieFormType;
 use App\Form\ReviewFormType;
 use App\Repository\MovieRepository;
 use App\Repository\ReviewRepository;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\MongoDBException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -28,18 +24,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class MovieController extends AbstractController{
     /**
      * @Route("/read/{from}/{to}/{page}", name="_read", methods={"GET"})
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param Int $from
      * @param Int $to
      * @param Int $page
      * @return Response
      */
-    public function read(DocumentManager $documentManager, Int $from, Int $to, Int $page=1)
+    public function read(EntityManagerInterface $entityManager, Int $from, Int $to, Int $page=1)
     {
 
-        $movies = $documentManager->getRepository(Movie::class)->findAllEx($from, $to);
-        $count = $documentManager->getRepository(Movie::class)->getCount();
-        $count = $count->current()[1];
+        $movies = $entityManager->getRepository(Movie::class)->findAllEx($from, $to);
+        $count = $entityManager->getRepository(Movie::class)->getCount();
         return $this->render('movies/movies.html.twig', [
             "movies" => $movies,
             "page_tabs" => 'movies_read',
@@ -53,12 +48,12 @@ class MovieController extends AbstractController{
     /**
      * @Route("/read/{id}", name="_read_one")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function readOne(String $id, DocumentManager $documentManager)
+    public function readOne(String $id, EntityManagerInterface $entityManager)
     {
-        $movie = $documentManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
+        $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
         $cast = $movie->getCast();
         if ($cast !== null) {
         	$it = $cast->getIterator();
@@ -78,16 +73,16 @@ class MovieController extends AbstractController{
      * @Route("/reviews/{id}", name="_reviews")
      * @param Request $request
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param ValidatorInterface $validator
      * @return Response
      */
-    public function readReviews(Request $request, String $id, DocumentManager $documentManager, ValidatorInterface $validator)
+    public function readReviews(Request $request, String $id, EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
 
         $form = $this->createForm(ReviewFormType::class);
-        $reviewRepository = $documentManager->getRepository(Review::class);
-        $movie = $documentManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
+        $reviewRepository = $entityManager->getRepository(Review::class);
+        $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
         $reviews = $reviewRepository->findAllByMovie($movie,0,100);
         if(!$this->getUser()){
             return $this->render('movies/reviews.html.twig', [
@@ -98,7 +93,7 @@ class MovieController extends AbstractController{
                 "canPost" => false,
             ] );
         }
-        $previousReviews = $documentManager->getRepository(Review::class)->findAllByUserMovie($this->getUser(), $movie);
+        $previousReviews = $entityManager->getRepository(Review::class)->findAllByUserMovie($this->getUser(), $movie);
         $array  = $previousReviews->toArray();
         $form->handleRequest($request);
         $canPost = count($array) == 0;
@@ -133,8 +128,8 @@ class MovieController extends AbstractController{
             }
 
             try {
-                $documentManager->persist($review);
-                $documentManager->flush();
+                $entityManager->persist($review);
+                $entityManager->flush();
             }catch (\Exception $e){
                 return $this->json(['error' => true]);
             }
@@ -154,22 +149,26 @@ class MovieController extends AbstractController{
      * @Route("/new", name="_new")
      * @param Request $request
      * @param ValidatorInterface $validator
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function new(Request $request, ValidatorInterface $validator, DocumentManager $documentManager)
+    public function new(Request $request, ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
         if(!$this->getUser()){
             return $this->redirectToRoute('login');
         }
 
-        $genres = $documentManager->getRepository(Genre::class)->findAll();
+        $genres = $entityManager->getRepository(Genre::class)->findAll();
 
         $form = $this->createForm(MovieFormType::class);
         $form->handleRequest($request);
-
+        if($request->isMethod('POST')) {
+            $form->submit($request);
+            var_dump("test-1");
+        }
+        var_dump("test-2");
         if ($form->isSubmitted()) {
-
+            var_dump("TEST");
             if (!$form->isValid()) {
                 $errors = $validator->validate($form->getData());
                 if (count($errors) > 0) {
@@ -188,14 +187,14 @@ class MovieController extends AbstractController{
             }
             $movie->setGenres($genres);
 
-            $requestMovie = new RequestMovie();
-            $requestMovie->setNewMovie($movie);
+            $requestMovie = new MovieRequest();
+            $requestMovie->setCurrentMovie($movie);
             $requestMovie->setAction(1);
             $requestMovie->setCreated(new \DateTime());
 
             try {
-                $documentManager->persist($requestMovie);
-                $documentManager->flush();
+                $entityManager->persist($requestMovie);
+                $entityManager->flush();
             }catch (\Exception $e){
                 return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
             }
@@ -208,15 +207,15 @@ class MovieController extends AbstractController{
     /**
      * @Route("/watchlist/add/{id}", name="_watchlist_add")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return RedirectResponse|Response
      */
-    public function addToWatchlist(String $id, DocumentManager $documentManager)
+    public function addToWatchlist(String $id, EntityManagerInterface $entityManager)
     {
         if(!$this->getUser()){
             return $this->redirectToRoute('login');
         }
-        $movie = $documentManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
+        $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
         $embedMovie = new EmbedMovieRef();
         $embedMovie->setName($movie->getTitle());
         $embedMovie->setMovie($movie);
@@ -224,7 +223,7 @@ class MovieController extends AbstractController{
         $watchlist = $this->getUser()->getWatchlist();
         $watchlist->getMovies()[] = $embedMovie;
         try{
-            $documentManager->flush();
+            $entityManager->flush();
         } catch (\Exception $e)
         {
             return $this->render('error/error.html.twig', ["error" => $e]);
@@ -237,19 +236,19 @@ class MovieController extends AbstractController{
     /**
      * @Route("/watchlist/remove/{id}", name="_watchlist_remove")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return RedirectResponse|Response
      */
-    public function removeFromWatchlist(String $id, DocumentManager $documentManager)
+    public function removeFromWatchlist(String $id, EntityManagerInterface $entityManager)
     {
         if(!$this->getUser()){
             return $this->redirectToRoute('login');
         }
-        $movie = $documentManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
+        $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
         $watchlist = $this->getUser()->getWatchlist();
         $watchlist->removeMovie($id);
         try{
-            $documentManager->flush();
+            $entityManager->flush();
         } catch (\Exception $e)
         {
             return $this->render('error/error.html.twig', ["error" => $e]);
@@ -260,23 +259,22 @@ class MovieController extends AbstractController{
     }
 
 
-
     /**
      * @Route("/update/{id}", name="_update")
      * @param Request $request
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
     public function update(Request $request, String $id,
-                           DocumentManager $documentManager
+                           EntityManagerInterface $entityManager
     )
     {
         $form = $this->createForm(MovieFormType::class);
         $form->remove("rating");
         $form->handleRequest($request);
 
-        $movie = $documentManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
+        $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
 
         if ($form->isSubmitted()) {
             $movieUpdated = $form->getData();
@@ -296,8 +294,8 @@ class MovieController extends AbstractController{
             $requestMovie->setCreated(new \DateTime());
 
             try {
-                $documentManager->persist($requestMovie);
-                $documentManager->flush();
+                $entityManager->persist($requestMovie);
+                $entityManager->flush();
             } catch (\Exception $e) {
                 return $this->render('index/index.html.twig', ['error' => true]);
             }
@@ -315,31 +313,28 @@ class MovieController extends AbstractController{
      * @param DocumentManager $documentManager
      * @return Response
      */
-    public function delete(String $id, DocumentManager $documentManager)
+    public function delete(String $id, EntityManagerInterface $entityManager)
     {
-        try {
-            $requestMovie = new RequestMovie();
-            $movieRef = new EmbedMovieRef();
-            $movie = $documentManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
-            $movieRef->setMovie($movie);
-            $movieRef->setName($movie->getTitle());
-            $requestMovie->setAction(3);
-            $requestMovie->setMovie($movieRef);
-            $requestMovie->setCreated(new \DateTime());
-            $documentManager->persist($requestMovie);
-            $documentManager->flush();
-        } catch (MongoDBException $e) {
-        }
+        $requestMovie = new RequestMovie();
+        $movieRef = new EmbedMovieRef();
+        $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
+        $movieRef->setMovie($movie);
+        $movieRef->setName($movie->getTitle());
+        $requestMovie->setAction(3);
+        $requestMovie->setMovie($movieRef);
+        $requestMovie->setCreated(new \DateTime());
+        $entityManager->persist($requestMovie);
+        $entityManager->flush();
 
         return $this->render('index/index.html.twig');
     }
 
     /**
      * @Route("/average/update/", name="_update_rating")
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return RedirectResponse
      */
-    public function updateRating(DocumentManager $documentManager)
+    public function updateRating(EntityManagerInterface $entityManager)
     {
         if(!$this->getUser()){
             return $this->redirectToRoute('login');
@@ -349,13 +344,13 @@ class MovieController extends AbstractController{
             return $this->redirectToRoute('home');
         }
 
-        $averageRatings = $documentManager->getRepository(Review::class)->getMoviesAverageRatings();
+        $averageRatings = $entityManager->getRepository(Review::class)->getMoviesAverageRatings();
 
         foreach($averageRatings as $ar) {
             $ar->movie->setRating(round($ar->averageRating,1));
         }
         try{
-            $documentManager->flush();
+            $entityManager->flush();
         } catch(\Exception $e) {
             return $this->redirectToRoute('home');
         }
@@ -367,13 +362,13 @@ class MovieController extends AbstractController{
     /**
      * @Route("/search/", name="_search")
      * @param Request $request
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function searchMovie(Request $request, DocumentManager $documentManager)
+    public function searchMovie(Request $request, EntityManagerInterface $entityManager)
     {
       $data = $request->request->get('_search');
-      $movies = $documentManager->getRepository(Movie::class)->findAllByTitle($data);
+      $movies = $entityManager->getRepository(Movie::class)->findAllByTitle($data);
 
       return $this->render('movies/movies.html.twig', ["movies" => $movies, "page_tabs" => 'movies_read', 'from' => 0, 'to'=>1, 'page'=>1, 'count' => 1]);
     }

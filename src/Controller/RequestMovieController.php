@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
-use App\Document\Movie;
-use App\Document\RequestMovie;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\MongoDBException;
+
+use App\Entity\Movie;
+use App\Entity\MovieRequest;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,13 +19,13 @@ class RequestMovieController extends AbstractController
 {
     /**
      * @Route("/read", name="_read")
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function read(DocumentManager $documentManager)
+    public function read(EntityManagerInterface $entityManager)
     {
 
-        $requests = $documentManager->getRepository(RequestMovie::class)->findBy([]);
+        $requests = $entityManager->getRepository(MovieRequest::class)->findBy([]);
         return $this->render('admin/require_movies.html.twig', [
             "requests" => $requests
         ] );
@@ -32,14 +33,14 @@ class RequestMovieController extends AbstractController
 
     /**
      * @Route("/read/{id}", name="_read_one", methods={"GET"})
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param String $id
      * @return Response
      */
-    public function readOne(DocumentManager $documentManager, String $id)
+    public function readOne(EntityManagerInterface $entityManager, String $id)
     {
 
-        $request = $documentManager->getRepository(RequestMovie::class)->findOneBy(["id" => $id]);
+        $request = $entityManager->getRepository(MovieRequest::class)->findOneBy(["id" => $id]);
         return $this->render('test/read_request_movie.html.twig', [
             "request" => $request
         ] );
@@ -48,13 +49,13 @@ class RequestMovieController extends AbstractController
 
     /**
      * @Route("/accept/{id}", name="_accept")
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param String $id
      * @return Response
      */
-    public function acceptRequest(DocumentManager $documentManager, String $id)
+    public function acceptRequest(EntityManagerInterface $entityManager, String $id)
     {
-        $request = $documentManager->getRepository(RequestMovie::class)->findOneBy(["id" => $id]);
+        $request = $entityManager->getRepository(MovieRequest::class)->findOneBy(["id" => $id]);
         $request->setApproved(true);
         $request->setCloses(new \DateTime());
         if($request->getAction() == 1)
@@ -66,8 +67,8 @@ class RequestMovieController extends AbstractController
             $newMovie->setPlot($request->getNewMovie()->getPlot());
             $newMovie->setGenres($request->getNewMovie()->getGenres());
             try{
-                $documentManager->persist($newMovie);
-                $documentManager->flush();
+                $entityManager->persist($newMovie);
+                $entityManager->flush();
             } catch(\Exception $e)
             {
                 return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
@@ -82,7 +83,7 @@ class RequestMovieController extends AbstractController
             $movie->setPlot($request->getNewMovie()->getPlot());
             $movie->setGenres($request->getNewMovie()->getGenres());
             try{
-                $documentManager->flush();
+                $entityManager->flush();
             } catch (\Exception $e)
             {
                 return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
@@ -92,8 +93,8 @@ class RequestMovieController extends AbstractController
         {
             $movie = $request->getMovie()->getMovie();
             try{
-                $documentManager->remove($movie);
-                $documentManager->flush();
+                $entityManager->remove($movie);
+                $entityManager->flush();
             } catch (\Exception $e)
             {
                 return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
@@ -103,17 +104,17 @@ class RequestMovieController extends AbstractController
 
     /**
      * @Route("/decline/{id}", name="_decline")
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param String $id
      * @return Response
      */
-    public function declineRequest(DocumentManager $documentManager, String $id)
+    public function declineRequest(EntityManagerInterface $entityManager, String $id)
     {
-        $request = $documentManager->getRepository(RequestMovie::class)->findOneBy(["id" => $id]);
+        $request = $entityManager->getRepository(MovieRequest::class)->findOneBy(["id" => $id]);
         $request->setApproved(false);
         $request->setCloses(new \DateTime());
         try{
-            $documentManager->flush();
+            $entityManager->flush();
         } catch(\Exception $e) {
             return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
         }

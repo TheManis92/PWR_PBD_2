@@ -2,13 +2,11 @@
 
 namespace App\Controller;
 
-use App\Document\EmbedMovieRef;
-use App\Document\EmbedUserRef;
-use App\Document\Movie;
-use App\Document\Review;
+
+use App\Entity\Movie;
+use App\Entity\Review;
 use App\Form\ReviewFormType;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\MongoDBException;
+
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -24,16 +22,16 @@ class ReviewController extends AbstractController{
 
     /**
      * @Route("/read/", name="_read", methods={"GET"})
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function read(DocumentManager $documentManager)
+    public function read(EntityManagerInterface $entityManager)
     {
         if(!$this->getUser())
         {
             return $this->redirectToRoute('login');
         }
-        $reviews = $documentManager->getRepository(Review::class)->findAllByStatus(false);
+        $reviews = $entityManager->getRepository(Review::class)->findBy(["isAccepted"=>false]);
         return $this->render('admin/reviews.html.twig', [
             "reviews" => $reviews
         ] );
@@ -43,15 +41,15 @@ class ReviewController extends AbstractController{
      * @Route("/new/{movieId}", name="_new", methods={"POST"})
      * @param Request $request
      * @param ValidatorInterface $validator
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @param String $movieId
      * @return Response
      */
-    public function new(Request $request, ValidatorInterface $validator, DocumentManager $documentManager, String $movieId)
+    public function new(Request $request, ValidatorInterface $validator, EntityManagerInterface $entityManager, String $movieId)
     {
         $form = $this->createForm(ReviewFormType::class);
-        $movie = $documentManager->getRepository(Movie::class)->findOneBy(["id" => $movieId]);
-        $previousReviews = $documentManager->getRepository(Review::class)->findAllByUserMovie($this->getUser(), $movie);
+        $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $movieId]);
+        $previousReviews = $entityManager->getRepository(Review::class)->findAllByUserMovie($this->getUser(), $movie);
         if($previousReviews)
         $form->handleRequest($request);
 
@@ -79,8 +77,8 @@ class ReviewController extends AbstractController{
             }
 
             try {
-                $documentManager->persist($review);
-                $documentManager->flush();
+                $entityManager->persist($review);
+                $entityManager->flush();
             }catch (\Exception $e){
                 return $this->json(['error' => true]);
             }
@@ -98,19 +96,18 @@ class ReviewController extends AbstractController{
     /**
      * @Route("/delete/{id}", name="_delete")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function delete(String $id, DocumentManager $documentManager)
+    public function delete(String $id, EntityManagerInterface $entityManager)
     {
         try {
-            $review = $documentManager->getRepository(Review::class)->findOneBy(["id" => $id]);
+            $review = $entityManager->getRepository(Review::class)->findOneBy(["id" => $id]);
 
-            $documentManager->remove($review);
-            $documentManager->flush();
+            $entityManager->remove($review);
+            $entityManager->flush();
         } catch (Exception $e) {
             return $this->json(['error' => true]);
-        } catch (MongoDBException $e) {
         }
 
         return $this->render('reviews_read');
@@ -119,19 +116,18 @@ class ReviewController extends AbstractController{
     /**
      * @Route("/accept/{id}", name="_accept")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
-    public function accept(String $id, DocumentManager $documentManager)
+    public function accept(String $id, EntityManagerInterface $entityManager)
     {
         try {
-            $review = $documentManager->getRepository(Review::class)->findOneBy(["id" => $id]);
+            $review = $entityManager->getRepository(Review::class)->findOneBy(["id" => $id]);
 
             $review->setAccepted(true);
-            $documentManager->flush();
+            $entityManager->flush();
         } catch (Exception $e) {
             return $this->json(['error' => true]);
-        } catch (MongoDBException $e) {
         }
 
         return $this->redirectToRoute('_reviews_read');

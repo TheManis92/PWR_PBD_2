@@ -24,7 +24,7 @@
                         <li><a href="{{ path('_user_watchlist') }}">My watchlist</a></li>
                         <li><a href="{{ path('_user_reviews') }}">My reviews</a></li>
                         <li><a href="{{ path('movies_new') }}">Add movie</a></li>
-                        {% if app.user.getRole <= 2 %}
+                        {% if app.user.getRole != "ROLE_USER" %}
                             <li><a href="{{ path('_request_movie_read') }}">Accept movies</a></li>
                             <li><a href="{{ path('_reviews_read') }}">Accept reviews</a></li>
                             <li><a href="{{ path('_genres_new') }}">Add genres</a></li>
