@@ -174,6 +174,13 @@ class Movie {
 		return $this;
 	}
 
+	public function setCast($cast): self {
+		$this->cast->clear();
+		$this->addCastBulk($cast);
+
+		return $this;
+	}
+
 	/**
 	 * @return Collection|Genre[]
 	 */
@@ -199,6 +206,13 @@ class Movie {
 
 	public function removeGenre(Genre $genre): self {
 		$this->genres->removeElement($genre);
+
+		return $this;
+	}
+
+	public function setGenres($genres): self {
+		$this->genres->clear();
+		$this->addGenres($genres);
 
 		return $this;
 	}
@@ -232,6 +246,13 @@ class Movie {
 		return $this;
 	}
 
+	public function setCountries($countries): self {
+		$this->countries->clear();
+		$this->addCountries($countries);
+
+		return $this;
+	}
+
 	/**
 	 * @return Collection|Lang[]
 	 */
@@ -257,6 +278,13 @@ class Movie {
 
 	public function removeLang(Lang $lang): self {
 		$this->langs->removeElement($lang);
+
+		return $this;
+	}
+
+	public function setLangs($langs): self {
+		$this->langs->clear();
+		$this->addLangs($langs);
 
 		return $this;
 	}

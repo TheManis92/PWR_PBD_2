@@ -236,4 +236,33 @@ class User implements UserInterface {
 	public function eraseCredentials() {
 		// empty
 	}
+
+	public function hasRole($role): bool {
+		if ($role instanceof Role) {
+			$role = $role->getRole();
+		}
+		$userRole = $this->getRole()->getRole();
+
+		switch ($role) {
+			case Role::ROLE_ADMINISTRATOR:
+				if ($userRole == Role::ROLE_ADMINISTRATOR) return true;
+				return false;
+			case Role::ROLE_MODERATOR:
+				if ($userRole == Role::ROLE_MODERATOR) return true;
+				if ($userRole == Role::ROLE_ADMINISTRATOR) return true;
+				return false;
+			case Role::ROLE_USER:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public function isAdmin(): bool {
+		return $this->hasRole(Role::ROLE_ADMINISTRATOR);
+	}
+
+	public function isModerator(): bool {
+		return $this->hasRole(Role::ROLE_MODERATOR);
+	}
 }
