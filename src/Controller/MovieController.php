@@ -364,7 +364,7 @@ class MovieController extends AbstractController{
             return $this->redirectToRoute('login');
         }
 
-        if($this->getUser()->getRole() == 3){
+        if(!$this->getUser()->isAdmin()){
             return $this->redirectToRoute('home');
         }
 
