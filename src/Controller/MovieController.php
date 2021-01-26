@@ -389,7 +389,8 @@ class MovieController extends AbstractController{
     public function searchMovie(Request $request, EntityManagerInterface $entityManager)
     {
       $data = $request->request->get('_search');
-      $movies = $entityManager->getRepository(Movie::class)->findBy(["title"=>$data]);
+      $movies = $entityManager->getRepository(Movie::class)
+		  ->getMoviesFromPartial($data);
 
       return $this->render('movies/movies.html.twig', ["movies" => $movies, "page_tabs" => 'movies_read', 'from' => 0, 'to'=>1, 'page'=>1, 'count' => 1]);
     }

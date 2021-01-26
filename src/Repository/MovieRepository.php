@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Movie;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 use Iterator;
 use PhpParser\Builder;
@@ -44,6 +46,24 @@ class MovieRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
         return $qb;
     }
+
+    public function getMoviesFromPartial($partial, $from=0, $to=0) {
+		$rsm = new ResultSetMapping;
+		$rsm->addEntityResult(Movie::class, 'm');
+		$rsm->addFieldResult('m', 'id', 'id');
+		$rsm->addFieldResult('m', 'title', 'title');
+		$rsm->addFieldResult('m', 'plot', 'plot');
+		$rsm->addFieldResult('m', 'year', 'year');
+		$rsm->addFieldResult('m', 'rating', 'rating');
+    	$query = $this->getEntityManager()
+			->createNativeQuery(
+				'SELECT id, title, plot, year, rating FROM movie WHERE title LIKE :partial',
+				$rsm
+			);
+    	$query->setParameter('partial', '%' . $partial . '%');
+
+    	return $query->getResult();
+	}
 
 
 
