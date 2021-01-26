@@ -226,7 +226,7 @@ class MovieController extends AbstractController{
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
 
         $watchlist = $this->getUser()->getWatchlist();
-        $watchlist->getMovies()[] = $movie;
+        $watchlist[] = $movie;
         try{
             $entityManager->flush();
         } catch (\Exception $e)
@@ -251,7 +251,7 @@ class MovieController extends AbstractController{
         }
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
         $watchlist = $this->getUser()->getWatchlist();
-        $watchlist->removeMovie($movie );
+        $watchlist->removeElement($movie);
         try{
             $entityManager->flush();
         } catch (\Exception $e)
