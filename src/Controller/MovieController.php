@@ -82,7 +82,7 @@ class MovieController extends AbstractController{
         $form = $this->createForm(ReviewFormType::class);
         $reviewRepository = $entityManager->getRepository(Review::class);
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
-        $reviews = $reviewRepository->findAllByMovie($movie,0,100);
+        $reviews = $reviewRepository->findBy(['movie'=>$movie]);
         if(!$this->getUser()){
             return $this->render('movies/reviews.html.twig', [
                 "movie" => $movie,
@@ -92,15 +92,11 @@ class MovieController extends AbstractController{
                 "canPost" => false,
             ] );
         }
-        $previousReviews = $entityManager->getRepository(Review::class)->findAllByUserMovie($this->getUser(), $movie);
-        $array  = $previousReviews->toArray();
+        $previousReviews = $entityManager->getRepository(Review::class)->findBy(['movie'=>$movie, 'user'=>$this->getUser()]);
         $form->handleRequest($request);
-        $canPost = count($array) == 0;
-        if ($form->isSubmitted()) {
-            if($canPost){
-                return $this->redirectToRoute('movies_read');
-            }
+        $canPost = count($previousReviews) == 0;
 
+        if ($form->isSubmitted()) {
 
             if (!$form->isValid()) {
                 $errors = $validator->validate($form->getData());
@@ -112,18 +108,13 @@ class MovieController extends AbstractController{
             }
 
             $review = $form->getData();
-            $embededUser = new EmbedUserRef();
-            $embededUser->setUser($this->getUser());
-            $embededUser->setName($this->getUser()->getName());
-            $embededMovie = new EmbedMovieRef();
-            $embededMovie->setMovie($movie);
-            $embededMovie->setName($movie->getTitle());
-            $review->setAccepted(false);
-            $review->setUser($embededUser);
-            $review->setMovie($embededMovie);
+            $review->setIsAccepted(false);
+            $review->setUser($this->getUser());
+            $review->setMovie($movie);
+            $review->setCreated(new \DateTime());
 
-            if($review->getComment() == '' or $review->getComment() == null ){
-                $review->setAccepted(true);
+            if($review->getContent() == '' or $review->getContent() == null ){
+                $review->setIsAccepted(true);
             }
 
             try {
@@ -347,18 +338,16 @@ class MovieController extends AbstractController{
     /**
      * @Route("/delete/{id}", name="_delete")
      * @param String $id
-     * @param DocumentManager $documentManager
+     * @param EntityManagerInterface $entityManager
      * @return Response
      */
     public function delete(String $id, EntityManagerInterface $entityManager)
     {
-        $requestMovie = new RequestMovie();
-        $movieRef = new EmbedMovieRef();
+        $requestMovie = new MovieRequest();
+
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
-        $movieRef->setMovie($movie);
-        $movieRef->setName($movie->getTitle());
-        $requestMovie->setAction(3);
-        $requestMovie->setMovie($movieRef);
+        $requestMovie->setAction(EnumMovieRequestAction::ACTION_REMOVE);
+        $requestMovie->setCurrentMovie($movie);
         $requestMovie->setCreated(new \DateTime());
         $entityManager->persist($requestMovie);
         $entityManager->flush();

@@ -7,7 +7,7 @@
         {% if elem.isAccepted() %}
             <div class="review">
                 {{ elem.getUser().getName() }}  created: {{ elem.getCreated()|date }}  rating: {{ elem.getRating() }}<br>
-                {{ elem.getComment() }}
+                {{ elem.getContent() }}
             </div>
             {% set i = i + 1 %}
         {% endif %}
