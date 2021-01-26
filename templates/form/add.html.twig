@@ -15,7 +15,9 @@
                 {% endblock form_start %}
                     <div class="row">
                         {% block form_inputs %}
-                            {{ form_widget(form, {'attr': {'class': 'col s12'}}) }}
+                            {% block form_widgets %}
+                                {{ form_widget(form, {'attr': {'class': 'col s12'}}) }}
+                            {% endblock form_widgets %}
                             <div class="col s12">
                                 {% block form_submit %}
                                     <button class="btn btn-lg btn-primary" type="submit">
