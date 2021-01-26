@@ -38,10 +38,11 @@ class MovieRepository extends ServiceEntityRepository
     }
 
     public function getCount() {
-        return $this->createQueryBuilder('m')
-                ->select('count(m.id)')
-                ->getQuery()
-                ->getSingleScalarResult();
+        $qb =  $this->createQueryBuilder('m')
+            ->select('count(m.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+        return $qb;
     }
 
 

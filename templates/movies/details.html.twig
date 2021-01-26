@@ -22,8 +22,8 @@
                     {% if app.user %}
                         <div id="addFavBT">
                             {% set contains = false %}
-                            {% for wMovie in app.user.getWatchlist().getMovies() %}
-                                {% if wMovie.getMovie().getId() == movie.id %}
+                            {% for wMovie in app.user.getWatchlist() %}
+                                {% if wMovie.getId() == movie.id %}
                                     {% set contains = true %}
                                 {% endif %}
                             {% endfor %}
@@ -69,18 +69,19 @@
             Produced: {{ movie.year }} <br>
             Rating: {{ movie.rating }} <br>
             Category: 	{% for elem in movie.genres %}
-                {{ elem }} <br>
+                {{ elem.getName() }} <br>
             {% endfor %}
-            Language: {{ movie.lang }} <br>
-            Director: {{ movie.director }} <br>
+            Language: {% for elem in movie.langs %}
+                {{ elem.getName() }} <br>
+            {% endfor %}
             Country: {% for elem in movie.countries %}
-                {{ elem }} <br>
+                {{ elem.getName() }} <br>
             {% endfor %}
         </div>
         <div class="col s3 offset-l4">
             Cast: 	<br>
             {% for elem in cast %}
-                {{ elem.name }} --- {{ elem.character }}<br>
+                {{ elem.name }} {{ elem.surname }}<br>
             {% endfor %}
         </div>
     </div>

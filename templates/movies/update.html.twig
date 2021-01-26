@@ -6,10 +6,12 @@
         {{ form_start(form) }}
         {{ form_row(form.title, {'attr': {'value': movie.title}}) }}
         {{ form_row(form.year, {'attr': {'value': movie.year}}) }}
-        {{ form_row(form.plot, {'attr': {'value': movie.plot}, 'data': movie.plot}) }}
+        {{ form_row(form.plot, {'attr': {'value': movie.plot}}) }}
         {{ form_row(form.genres) }}
-        {{ form_row(form.lang, {'attr': {'value': movie.lang}}) }}
-        {{ form_row(form.director, {'attr': {'value': movie.director}}) }}
+        {{ form_row(form.lang) }}
+        {{ form_row(form.cast) }}
+        {{ form_row(form.countries) }}
+
         <div>
             <button id="btn" class="btn btn-lg btn-primary" type="submit">Edit movie</button>
         </div>
