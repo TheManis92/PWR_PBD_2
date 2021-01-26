@@ -10,7 +10,7 @@
                 </h5>
             </div>
             <div class="row">
-                {% if not reviews %}
+                {% if not reviews|filter(r => r.isAccepted and r.title) %}
                     <div class="col s12 center">
                         <h6>No reviews available</h6>
                     </div>

@@ -1,20 +1,40 @@
 {% extends 'base.html.twig' %}
 
-{% block css %}
-    {{ parent() }}
-    <link type="text/css" rel="stylesheet" href="{{ asset('assets/css/reviews.min.css') }}">
-{% endblock css %}
-
 {% block content %}
-    <div id="rec-container">
-        Yours comment:
-        <div id="row">
-            {% for elem in reviews %}
-                <div id="title">{{ elem.getMovie().getTitle() }}</div>
-                <div id="spec">{{ elem.getCreated()|date }}   Rating:{{ elem.getRating() }}</div>
-                <div style="clear:both;"></div>
-                <div id="comment">{{ elem.getContent() }}</div>
-            {% endfor %}
+    <div class="container">
+        <div class="section no-pad-bot">
+            <div class="row center">
+                <h5>
+                    Your reviews
+                </h5>
+            </div>
+            <div class="row">
+                {% if not reviews|filter(r => r.isAccepted and r.title) %}
+                    <div class="col s12 center">
+                        <h6>No reviews available</h6>
+                    </div>
+                {% else %}
+                    <div class="col s8 offset-s2">
+                        <ul class="collection">
+                            {% for review in reviews %}
+                                {% if review.isAccepted and review.title %}
+                                    <li class="collection-item">
+                                        <div>
+                                            Posted on {{ review.created|date }}<br/>
+                                            Rating: {{ review.rating }}<br/>
+                                            Title: {{ review.title }}
+                                        </div>
+                                        <br/>
+                                        <div>
+                                            {{ review.content }}
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}
