@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                <h1 class="h3 center mb-3 font-weight-normal">Account</h1>
+            </div>
+            <div class="row">
+                <div class="col s3">
+                    <div class="collection center">
+                        <div class="collection-item active">User panel</div>
+                        <a href="{{ path('_user_watchlist') }}" class="collection-item">My watchlist</a>
+                        <a href="{{ path('_user_reviews') }}" class="collection-item">My reviews</a>
+                        <a href="{{ path('_user_edit', {'id': app.user.id}) }}" class="collection-item">Settings</a>
+                        <a href="{{ path('_user_update_password', {'id': app.user.id}) }}" class="collection-item">Change password</a>
+                        <a href="{{ path('app_logout') }}" class="collection-item">Logout</a>
+                        {% if app.user.isModerator %}
+                            <div class="collection-item active">Moderator panel</div>
+                            <a href="{{ path('_request_movie_read') }}" class="collection-item">Movie requests</a>
+                            <a href="{{ path('_reviews_read') }}" class="collection-item">Review requests</a>
+                        {% endif %}
+                        {% if app.user.isAdmin %}
+                            <div class="collection-item active">Admin panel</div>
+                            <a href="{{ path('_genres_read') }}" class="collection-item">Genres</a>
+                            <a href="{{ path('country_read') }}" class="collection-item">Countries</a>
+                            <a href="{{ path('lang_read') }}" class="collection-item">Languages</a>
+                            <a href="{{ path('person_read') }}" class="collection-item">People</a>
+                            <a href="{{ path('movies_update_rating') }}" class="collection-item">Update ratings</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col s5 offset-s1">
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="card">
+                                <div class="card-content">
+                                    <span class="card-title">Information</span>
+                                    <p>
+                                        Username: {{ app.user.name }}<br/>
+                                        Email: {{ app.user.email }}<br/>
+                                        Role: {{ app.user.role.name }}<br/>
+                                        Last visit: {{ app.user.lastVisit|date }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
