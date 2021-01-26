@@ -10,7 +10,7 @@
         Yours comment:
         <div id="row">
             {% for elem in reviews %}
-                <div id="title">{{ elem.getMovie().getMovie().getTitle() }}</div>
+                <div id="title">{{ elem.getMovie().getTitle() }}</div>
                 <div id="spec">{{ elem.getCreated() }}   Rating:{{ elem.getRating() }}</div>
                 <div style="clear:both;"></div>
                 <div id="comment">{{ elem.getComment() }}</div>
