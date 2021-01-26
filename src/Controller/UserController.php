@@ -31,7 +31,7 @@ class UserController extends AbstractController{
         {
             return $this->redirectToRoute('login');
         }
-        return $this->render('user/user.html.twig', ["page_tabs" => '_user_account']);
+        return $this->render('user/account.html.twig', ["page_tabs" => '_user_account']);
     }
 
 
