@@ -202,9 +202,9 @@ PLOT;
 		$movieSubmission = new MovieSubmission();
 		$movieSubmission->setTitle(self::getRandomMovieTitle())
 			->setYear(
-				self::shouldBeNull() ? [] : $movie->getYear())
+				self::shouldBeNull() ? null : $movie->getYear())
 			->setPlot(
-				self::shouldBeNull() ? [] : $movie->getPlot())
+				self::shouldBeNull() ? null : $movie->getPlot())
 			->addGenres(
 				self::shouldBeNull() ? [] : $movie->getGenres())
 			->addCountries(
@@ -336,16 +336,20 @@ PLOT;
 
 		// load requests
 		for ($i = 0; $i < self::AMOUNT_REQUESTS; $i++) {
+			$action = mt_rand(0, 1000) < 5000 ?
+				EnumMovieRequestAction::ACTION_ADD : EnumMovieRequestAction::ACTION_EDIT;
 			$loadedUser = $loadedUsers[array_rand($loadedUsers)];
-			$loadedMovie = $loadedMovies[array_rand($loadedMovies)];
 			$movieSubmission = self::getRandomMovieSubmission();
 
 			$movieRequest = new MovieRequest();
-			$movieRequest->setAction(mt_rand(0, 1000) < 5000 ?
-				EnumMovieRequestAction::ACTION_ADD : EnumMovieRequestAction::ACTION_EDIT)
+			$movieRequest->setAction($action)
 				->setMovieSubmission($movieSubmission)
-				->setCurrentMovie($loadedMovie)
 				->setUser($loadedUser);
+
+			if ($action == EnumMovieRequestAction::ACTION_EDIT) {
+				$loadedMovie = $loadedMovies[array_rand($loadedMovies)];
+				$movieRequest->setCurrentMovie($loadedMovie);
+			}
 
 			$manager->persist($movieSubmission);
 			$manager->persist($movieRequest);
