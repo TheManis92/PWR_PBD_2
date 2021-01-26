@@ -45,13 +45,6 @@
 
 
                         </div>
-                        <div id="editBT">
-                            <a href="{{ path('movies_update', {id: movie.id}) }}">
-                                <button class="btn btn-lg btn-primary" type="button">
-                                    Edit movie
-                                </button>
-                            </a>
-                        </div>
                     {% endif %}
                 </div>
 
@@ -87,3 +80,23 @@
     </div>
 
 {% endblock content %}
+
+{% block body_end %}
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large">
+            <i class="large material-icons">menu</i>
+        </a>
+        <ul>
+            <li>
+                <a class="btn-floating teal darken-4" href="{{ path('movies_update', {id: movie.id}) }}">
+                    <i class="material-icons">edit</i>
+                </a>
+            </li>
+            <li>
+                <a class="btn-floating red darken-4" href="{{ path('movies_delete', {id: movie.id}) }}">
+                    <i class="material-icons">delete_forever</i>
+                </a>
+            </li>
+        </ul>
+    </div>
+{% endblock body_end %}
