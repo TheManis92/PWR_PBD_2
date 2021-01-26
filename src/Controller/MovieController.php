@@ -345,6 +345,7 @@ class MovieController extends AbstractController{
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
         $requestMovie->setAction(EnumMovieRequestAction::ACTION_REMOVE);
         $requestMovie->setCurrentMovie($movie);
+        $requestMovie->setUser($this->getUser());
         $requestMovie->setCreated(new \DateTime());
         $entityManager->persist($requestMovie);
         $entityManager->flush();
