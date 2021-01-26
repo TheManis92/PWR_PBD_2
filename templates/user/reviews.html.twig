@@ -11,9 +11,9 @@
         <div id="row">
             {% for elem in reviews %}
                 <div id="title">{{ elem.getMovie().getTitle() }}</div>
-                <div id="spec">{{ elem.getCreated() }}   Rating:{{ elem.getRating() }}</div>
+                <div id="spec">{{ elem.getCreated()|date }}   Rating:{{ elem.getRating() }}</div>
                 <div style="clear:both;"></div>
-                <div id="comment">{{ elem.getComment() }}</div>
+                <div id="comment">{{ elem.getContent() }}</div>
             {% endfor %}
         </div>
     </div>
