@@ -29,10 +29,12 @@ class MovieRepository extends ServiceEntityRepository
      */
     public function findAllEx(int $from=0, $to=0, ?array $fields=null,
                               ?array $sort=null) {
-        return $this->createQueryBuilder('m')
+        $qb = $this->createQueryBuilder('m')
             ->setFirstResult($from)
             ->setMaxResults($to + $from);
 
+        $query = $qb->getQuery();
+        return $query->execute();
     }
 
     public function getCount() {
