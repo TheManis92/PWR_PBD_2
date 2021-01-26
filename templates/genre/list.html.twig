@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="container">
+        <div class="section no-pad-bot">
+            <div class="row center">
+                 <h5>
+                     Genres
+                 </h5>
+            </div>
+            <div class="row">
+                <div class="col s4 offset-s4">
+                    <a href="{{ path('_genres_new') }}" class="btn-floating waves-effect waves-light right">
+                        <i class="material-icons">add</i>
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                {% if not genre_list %}
+                    <div class="col s12 center">
+                        <h6>No genres available</h6>
+                    </div>
+                {% else %}
+                    <div class="col s4 offset-s4">
+                        <ul class="collection">
+                            {% for genre in genre_list %}
+                                <li class="collection-item">
+                                    <div>
+                                        {{ genre.name }}
+                                        <a href="{{ path('_genres_delete', {'id': genre.id}) }}" class="secondary-content">
+                                            <i class="material-icons">delete_forever</i>
+                                        </a>
+                                        <a href="{{ path('_genres_update', {'id': genre.id}) }}" class="secondary-content">
+                                            <i class="material-icons">edit</i>
+                                        </a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

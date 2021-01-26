@@ -6,7 +6,6 @@ use App\Entity\Genre;
 use App\Form\GenreFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,18 +16,18 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class GenreController extends AbstractController {
 
-    /**
-     * @Route("/read", name="_read", methods={"GET"})
-     * @param DocumentManager $documentManager
-     * @return Response
-     */
-    public function read(EntityManagerInterface $entityManager)
-    {
+	/**
+	 * @Route("/read", name="_read", methods={"GET"})
+	 * @param EntityManagerInterface $entityManager
+	 * @return Response
+	 */
+    public function read(EntityManagerInterface $entityManager): Response {
+        $genres = $entityManager->getRepository(Genre::class)
+			->findAll();
 
-        $genres = $entityManager->getRepository(Genre::class)->findBy([]);
-        return $this->render('test/read_genres.html.twig', [
-            "genres" => $genres
-        ] );
+        return $this->render('genre/list.html.twig', [
+            "genre_list" => $genres
+        ]);
     }
 
     /**
