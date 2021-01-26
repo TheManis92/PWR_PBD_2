@@ -88,7 +88,7 @@ class GenreController extends AbstractController {
             return $this->redirectToRoute('_user_account');
 
         }
-        return $this->render('admin/genre.html.twig', array('form' => $form->createView()));
+        return $this->render('genre/add.html.twig', array('form' => $form->createView()));
     }
 
     /**
