@@ -226,7 +226,7 @@ class MovieController extends AbstractController{
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
 
         $watchlist = $this->getUser()->getWatchlist();
-        $watchlist->getMovies()[] = $movie;
+        $watchlist[] = $movie;
         try{
             $entityManager->flush();
         } catch (\Exception $e)
@@ -251,7 +251,7 @@ class MovieController extends AbstractController{
         }
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
         $watchlist = $this->getUser()->getWatchlist();
-        $watchlist->removeMovie($movie );
+        $watchlist->removeElement($movie);
         try{
             $entityManager->flush();
         } catch (\Exception $e)
@@ -367,11 +367,8 @@ class MovieController extends AbstractController{
             return $this->redirectToRoute('home');
         }
 
-        $averageRatings = $entityManager->getRepository(Review::class)->getMoviesAverageRatings();
+        $entityManager->getRepository(Review::class)->updateMoviesAverageRating();
 
-        foreach($averageRatings as $ar) {
-            $ar->movie->setRating(round($ar->averageRating,1));
-        }
         try{
             $entityManager->flush();
         } catch(\Exception $e) {
@@ -391,7 +388,7 @@ class MovieController extends AbstractController{
     public function searchMovie(Request $request, EntityManagerInterface $entityManager)
     {
       $data = $request->request->get('_search');
-      $movies = $entityManager->getRepository(Movie::class)->findAllByTitle($data);
+      $movies = $entityManager->getRepository(Movie::class)->findBy(["title"=>$data]);
 
       return $this->render('movies/movies.html.twig', ["movies" => $movies, "page_tabs" => 'movies_read', 'from' => 0, 'to'=>1, 'page'=>1, 'count' => 1]);
     }
