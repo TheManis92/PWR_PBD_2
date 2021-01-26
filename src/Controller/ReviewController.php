@@ -110,7 +110,10 @@ class ReviewController extends AbstractController{
             return $this->json(['error' => true]);
         }
 
-        return $this->render('reviews_read');
+        $reviews = $entityManager->getRepository(Review::class)->findBy(["isAccepted"=>false]);
+        return $this->render('admin/reviews.html.twig', [
+            "reviews" => $reviews
+        ] );
     }
 
     /**
