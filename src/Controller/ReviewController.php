@@ -127,7 +127,7 @@ class ReviewController extends AbstractController{
         try {
             $review = $entityManager->getRepository(Review::class)->findOneBy(["id" => $id]);
 
-            $review->setAccepted(true);
+            $review->setIsAccepted(true);
             $entityManager->flush();
         } catch (Exception $e) {
             return $this->json(['error' => true]);
