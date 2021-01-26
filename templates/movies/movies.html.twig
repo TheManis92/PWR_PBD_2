@@ -69,3 +69,17 @@
     </div>
 {% endblock %}
 
+{% block body_end %}
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large">
+            <i class="large material-icons">menu</i>
+        </a>
+        <ul>
+            <li>
+                <a class="btn-floating red darken-4" href="{{ path('movies_new') }}">
+                    <i class="material-icons">add</i>
+                </a>
+            </li>
+        </ul>
+    </div>
+{% endblock body_end %}
