@@ -82,7 +82,7 @@ class MovieController extends AbstractController{
         $form = $this->createForm(ReviewFormType::class);
         $reviewRepository = $entityManager->getRepository(Review::class);
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id"=>$id]);
-        $reviews = $reviewRepository->findBy(['movie'=>$movie]);
+        $reviews = $reviewRepository->findBy(['movie'=>$movie, 'isAccepted'=>true]);
         if(!$this->getUser()){
             return $this->render('movies/reviews.html.twig', [
                 "movie" => $movie,
