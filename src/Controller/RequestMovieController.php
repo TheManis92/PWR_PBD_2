@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 
+use App\DBAL\EnumMovieRequestAction;
 use App\Entity\Movie;
 use App\Entity\MovieRequest;
-use Doctrine\ORM\EntityManager;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,22 +34,6 @@ class RequestMovieController extends AbstractController
     }
 
     /**
-     * @Route("/read/{id}", name="_read_one", methods={"GET"})
-     * @param EntityManagerInterface $entityManager
-     * @param String $id
-     * @return Response
-     */
-    public function readOne(EntityManagerInterface $entityManager, String $id)
-    {
-
-        $request = $entityManager->getRepository(MovieRequest::class)->findOneBy(["id" => $id]);
-        return $this->render('test/read_request_movie.html.twig', [
-            "request" => $request
-        ] );
-    }
-
-
-    /**
      * @Route("/accept/{id}", name="_accept")
      * @param EntityManagerInterface $entityManager
      * @param String $id
@@ -56,50 +42,62 @@ class RequestMovieController extends AbstractController
     public function acceptRequest(EntityManagerInterface $entityManager, String $id)
     {
         $request = $entityManager->getRepository(MovieRequest::class)->findOneBy(["id" => $id]);
-        $request->setApproved(true);
-        $request->setCloses(new \DateTime());
-        if($request->getAction() == 1)
+        if($request->getAction() == EnumMovieRequestAction::ACTION_ADD)
         {
             $newMovie = new Movie();
-            $newMovie->setTitle($request->getNewMovie()->getTitle());
-            $newMovie->setYear($request->getNewMovie()->getYear());
-            $newMovie->setRating($request->getNewMovie()->getRating());
-            $newMovie->setPlot($request->getNewMovie()->getPlot());
-            $newMovie->setGenres($request->getNewMovie()->getGenres());
+			$movieSubmission = $request->getMovieSubmission();
+            $newMovie->setTitle($movieSubmission->getTitle());
+			$newMovie->setYear($movieSubmission->getYear());
+			$newMovie->setPlot($movieSubmission->getPlot());
+			$newMovie->setGenres($movieSubmission->getGenres());
+			$newMovie->setCountries($movieSubmission->getCountries());
+			$newMovie->setLangs($movieSubmission->getLangs());
+			$newMovie->setCast($movieSubmission->getCast());
+
+			$entityManager->remove($request);
             try{
                 $entityManager->persist($newMovie);
                 $entityManager->flush();
-            } catch(\Exception $e)
+            } catch(Exception $e)
             {
                 return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
             }
         }
-        elseif ($request->getAction() == 2)
+        elseif ($request->getAction() == EnumMovieRequestAction::ACTION_EDIT)
         {
-            $movie = $request->getMovie()->getMovie();
-            $movie->setTitle($request->getNewMovie()->getTitle());
-            $movie->setYear($request->getNewMovie()->getYear());
-            $movie->setRating($request->getNewMovie()->getRating());
-            $movie->setPlot($request->getNewMovie()->getPlot());
-            $movie->setGenres($request->getNewMovie()->getGenres());
+            $movie = $request->getCurrentMovie();
+            $movieSubmission = $request->getMovieSubmission();
+            $movie->setTitle($movieSubmission->getTitle());
+            $movie->setYear($movieSubmission->getYear());
+            $movie->setPlot($movieSubmission->getPlot());
+            $movie->setGenres($movieSubmission->getGenres());
+            $movie->setCountries($movieSubmission->getCountries());
+            $movie->setLangs($movieSubmission->getLangs());
+            $movie->setCast($movieSubmission->getCast());
+
+			$entityManager->remove($request);
             try{
                 $entityManager->flush();
-            } catch (\Exception $e)
+            } catch (Exception $e)
             {
                 return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
             }
         }
-        elseif ($request->getAction() == 3)
+        elseif ($request->getAction() == EnumMovieRequestAction::ACTION_REMOVE)
         {
-            $movie = $request->getMovie()->getMovie();
+            $movie = $request->getCurrentMovie();
+
+			$entityManager->remove($request);
             try{
                 $entityManager->remove($movie);
                 $entityManager->flush();
-            } catch (\Exception $e)
+            } catch (Exception $e)
             {
                 return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
             }
         }
+
+		return $this->redirectToRoute('_request_movie_read');
     }
 
     /**
@@ -111,13 +109,14 @@ class RequestMovieController extends AbstractController
     public function declineRequest(EntityManagerInterface $entityManager, String $id)
     {
         $request = $entityManager->getRepository(MovieRequest::class)->findOneBy(["id" => $id]);
-        $request->setApproved(false);
-        $request->setCloses(new \DateTime());
+        $entityManager->remove($request);
         try{
             $entityManager->flush();
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
         }
+
+		return $this->redirectToRoute('_request_movie_read');
     }
 
 
