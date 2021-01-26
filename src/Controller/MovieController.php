@@ -2,9 +2,13 @@
 
 namespace App\Controller;
 
+use App\DBAL\EnumMovieRequestAction;
+use App\Entity\Country;
 use App\Entity\Genre;
+use App\Entity\Lang;
 use App\Entity\Movie;
 use App\Entity\MovieRequest;
+use App\Entity\Person;
 use App\Entity\Review;
 use App\Form\MovieFormType;
 use App\Form\ReviewFormType;
@@ -35,6 +39,7 @@ class MovieController extends AbstractController{
 
         $movies = $entityManager->getRepository(Movie::class)->findAllEx($from, $to);
         $count = $entityManager->getRepository(Movie::class)->getCount();
+        var_dump($movies);
         return $this->render('movies/movies.html.twig', [
             "movies" => $movies,
             "page_tabs" => 'movies_read',
@@ -162,11 +167,6 @@ class MovieController extends AbstractController{
 
         $form = $this->createForm(MovieFormType::class);
         $form->handleRequest($request);
-        if($request->isMethod('POST')) {
-            $form->submit($request);
-            var_dump("test-1");
-        }
-        var_dump("test-2");
         if ($form->isSubmitted()) {
             var_dump("TEST");
             if (!$form->isValid()) {
@@ -180,23 +180,46 @@ class MovieController extends AbstractController{
 
 
             $movie = $form->getData();
-            $genres = [];
+
             foreach ( $form->get('genres')->getData() as $key => $value)
             {
-                $genres[] = $value->getName();
+                $genre = $entityManager->getRepository(Genre::class)->find($value->getId());
+                $movie->addGenre($genre);
             }
-            $movie->setGenres($genres);
+
+            foreach ( $form->get('lang')->getData() as $key => $value)
+            {
+                $lang = $entityManager->getRepository(Lang::class)->find($value->getId());
+                $movie->addLang($lang);
+            }
+
+            foreach ( $form->get('countries')->getData() as $key => $value)
+            {
+                $country = $entityManager->getRepository(Country::class)->find($value->getId());
+                $movie->addCountry($country);
+            }
+
+
+            foreach ( $form->get('cast')->getData() as $key => $value)
+            {
+                $cast = $entityManager->getRepository(Person::class)->find($value->getId());
+                $movie->addCast($cast);
+            }
+
 
             $requestMovie = new MovieRequest();
-            $requestMovie->setCurrentMovie($movie);
-            $requestMovie->setAction(1);
+            $requestMovie->setMovieSubmission($movie);
+            $requestMovie->setAction(EnumMovieRequestAction::ACTION_ADD);
+            $requestMovie->setUser($this->getUser());
             $requestMovie->setCreated(new \DateTime());
 
             try {
+                $entityManager->persist($movie);
                 $entityManager->persist($requestMovie);
                 $entityManager->flush();
             }catch (\Exception $e){
-                return $this->render('test/error.html.twig', ['error' => $e->getMessage()]);
+                var_dump($e->getMessage());
+                return $this->render('index/index.html.twig', ['error' => $e->getMessage()]);
             }
 
             return $this->redirectToRoute('movies_read',['from' => 0, 'to' => 10, 'page' => 0]);

@@ -2,8 +2,12 @@
 
 namespace App\Form;
 
+use App\Entity\Country;
 use App\Entity\Genre;
+use App\Entity\Lang;
 use App\Entity\Movie;
+use App\Entity\MovieSubmission;
+use App\Entity\Person;
 use Doctrine\DBAL\Types\ArrayType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -20,28 +24,46 @@ class MovieFormType extends AbstractType
     {
         $builder->add('title');
         $builder->add('year');
-        $builder->add('rating', NumberType::class);
-
-
         $builder->add('genres', EntityType::class, array(
             'class' => Genre::class,
             'choice_label' => 'name',
-            'choice_value' => 'name',
+            'choice_value' => 'id',
             'expanded' => false,
             'multiple' => true,
             'mapped' => false
         ));
-
         $builder->add('plot', TextareaType::class);
-        $builder->add('lang');
-        $builder->add('director');
+        $builder->add('lang', EntityType::class, array(
+            'class' => Lang::class,
+            'choice_label' => 'name',
+            'choice_value' => 'id',
+            'expanded' => false,
+            'multiple' => true,
+            'mapped' => false
+        ));
+        $builder->add('countries', EntityType::class, array(
+            'class' => Country::class,
+            'choice_label' => 'name',
+            'choice_value' => 'id',
+            'expanded' => false,
+            'multiple' => true,
+            'mapped' => false
+        ));
+        $builder->add('cast', EntityType::class, array(
+            'class' => Person::class,
+            'choice_label' => 'surname',
+            'choice_value' => 'id',
+            'expanded' => false,
+            'multiple' => true,
+            'mapped' => false
+        ));
 
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => Movie::class,
+            'data_class' => MovieSubmission::class,
         ));
     }
 }
