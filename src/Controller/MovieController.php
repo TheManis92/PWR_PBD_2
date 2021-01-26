@@ -39,7 +39,7 @@ class MovieController extends AbstractController{
 
         $movies = $entityManager->getRepository(Movie::class)->findAllEx($from, $to);
         $count = $entityManager->getRepository(Movie::class)->getCount();
-        var_dump($count);
+
         return $this->render('movies/movies.html.twig', [
             "movies" => $movies,
             "page_tabs" => 'movies_read',
@@ -224,12 +224,9 @@ class MovieController extends AbstractController{
             return $this->redirectToRoute('login');
         }
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
-        $embedMovie = new EmbedMovieRef();
-        $embedMovie->setName($movie->getTitle());
-        $embedMovie->setMovie($movie);
 
         $watchlist = $this->getUser()->getWatchlist();
-        $watchlist->getMovies()[] = $embedMovie;
+        $watchlist->getMovies()[] = $movie;
         try{
             $entityManager->flush();
         } catch (\Exception $e)
@@ -254,7 +251,7 @@ class MovieController extends AbstractController{
         }
         $movie = $entityManager->getRepository(Movie::class)->findOneBy(["id" => $id]);
         $watchlist = $this->getUser()->getWatchlist();
-        $watchlist->removeMovie($id);
+        $watchlist->removeMovie($movie );
         try{
             $entityManager->flush();
         } catch (\Exception $e)
