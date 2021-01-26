@@ -4,20 +4,22 @@ namespace App\Repository;
 
 use App\Entity\Review;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method Review|null find($id, $lockMode = NULL, $lockVersion = NULL)
- * @method Review|null findOneBy(array $criteria, array $orderBy = NULL)
- * @method Review[]    findAll()
- * @method Review[]    findBy(array $criteria, array $orderBy = NULL, $limit = NULL, $offset = NULL)
- */
+
 class ReviewRepository extends ServiceEntityRepository {
 	public function __construct(ManagerRegistry $registry) {
 		parent::__construct($registry, Review::class);
 	}
 
-	public function getMoviesAverageRating() {
+	/**
+	 * @return array
+	 * @throws Exception
+	 * @throws \Doctrine\DBAL\Exception
+	 */
+	public function getMoviesAverageRating(): array {
 		$conn = $this->getEntityManager()->getConnection();
 		$sql = '
 			SELECT m.id AS movie_id, AVG(r.rating) AS avg_rating FROM movie m 
@@ -28,6 +30,40 @@ class ReviewRepository extends ServiceEntityRepository {
 		$stmt = $conn->prepare($sql);
 		$stmt->execute();
 		return $stmt->fetchAllAssociative();
+	}
+
+	/**
+	 * @return bool
+	 * @throws ConnectionException
+	 */
+	public function updateMoviesAverageRating(): bool {
+		$conn = $this->getEntityManager()->getConnection();
+		$sql = '
+			UPDATE movie m SET m.rating = :new_rating
+				WHERE m.id = :movie_id
+		';
+
+		$conn->beginTransaction();
+		try {
+			$data = $this->getMoviesAverageRating();
+			$stmt = $conn->prepare($sql);
+
+			$stmt->bindParam('movie_id', $movie_id);
+			$stmt->bindParam('new_rating', $new_rating);
+
+			foreach ($data as $tuple) {
+				$movie_id = $tuple['movie_id'];
+				$new_rating = $tuple['avg_rating'];
+				$stmt->execute();
+			}
+
+			$conn->commit();
+		} catch (\Doctrine\DBAL\Exception | Exception $e) {
+			$conn->rollBack();
+			return false;
+		}
+
+		return true;
 	}
 
 	// /**
