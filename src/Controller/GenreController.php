@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Genre;
 use App\Form\GenreFormType;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,20 +32,6 @@ class GenreController extends AbstractController {
     }
 
     /**
-     * @Route("/read/{id}", name="_read_id", methods={"GET"})
-     * @param String $id
-     * @param EntityManagerInterface $entityManager
-     * @return Response
-     */
-    public function readOne(String $id, EntityManagerInterface $entityManager)
-    {
-        $genre = $entityManager->getRepository(Genre::class)->findOneBy(["id" => $id]);
-        return $this->render('test/read_genre.html.twig', [
-            "genre" => $genre
-        ] );
-    }
-
-    /**
      * @Route("/new", name="_new")
      * @param Request $request
      * @param ValidatorInterface $validator
@@ -57,7 +44,7 @@ class GenreController extends AbstractController {
             return $this->redirectToRoute('login');
         }
 
-        if($this->getUser()->getRole()->getName()=="ROLE_USER"){
+        if($this->getUser()->getRole()->getRole()=="ROLE_USER") {
             return $this->redirectToRoute('home');
         }
         $form = $this->createForm(GenreFormType::class);
@@ -69,7 +56,7 @@ class GenreController extends AbstractController {
             {
                 $errors = $validator->validate($form->getData());
                 if (count($errors) > 0) {
-                    return $this->render('index/index.html.twig',[
+                    return $this->render('genre/add.html.twig',[
                         "error" => $errors,
                         "response_code" => 206]);
                 }
@@ -81,11 +68,11 @@ class GenreController extends AbstractController {
             try {
                 $entityManager->persist($genre);
                 $entityManager->flush();
-            }catch (\Exception $e){
+            }catch (Exception $e){
                 return $this->json(['error' => true]);
             }
 
-            return $this->redirectToRoute('_user_account');
+            return $this->redirectToRoute('_genres_read');
 
         }
         return $this->render('genre/add.html.twig', array('form' => $form->createView()));
@@ -100,8 +87,7 @@ class GenreController extends AbstractController {
      * @return Response
      */
     public function update(Request $request, String $id,
-                           EntityManagerInterface $entityManager, ValidatorInterface $validator
-                           )
+                           EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
         $form = $this->createForm(GenreFormType::class);
 
@@ -114,7 +100,7 @@ class GenreController extends AbstractController {
             {
                 $errors = $validator->validate($form->getData());
                 if (count($errors) > 0) {
-                    return $this->render('index/index.html.twig',[
+                    return $this->render('genre/edit.html.twig',[
                         "error" => $errors,
                         "response_code" => 206]);
                 }
@@ -124,16 +110,20 @@ class GenreController extends AbstractController {
 
             try {
                 $entityManager->flush();
-            } catch (\Exception $e) {
-                return $this->render('index/index.html.twig', ['error' => true]);
+            } catch (Exception $e) {
+                return $this->render('genre/edit.html.twig', [
+                	'error' => true,
+					"form" => $form->createView()
+				]);
             }
 
-            return $this->render('index/index.html.twig', [
-               "edited" => $form->getData()
-            ]);
+			return $this->redirectToRoute('_genres_read');
         }
 
-        return $this->render('test/update_genre.html.twig',['form' => $form->createView(), 'genre' => $genre]);
+        return $this->render('genre/edit.html.twig', [
+        	'form' => $form->createView(),
+			'genre' => $genre
+		]);
     }
 
     /**
@@ -147,7 +137,7 @@ class GenreController extends AbstractController {
         $genre = $entityManager->getRepository(Genre::class)->findOneBy(["id"=>$id]);
         $entityManager->remove($genre);
         $entityManager->flush();
-        return $this->redirectToRoute('home');
+        return $this->redirectToRoute('_genres_read');
     }
 
 }
