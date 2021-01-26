@@ -21,7 +21,7 @@
                                 <i class="material-icons left tooltipped" data-position="top" data-tooltip="rating">grade</i>
                             </span>
                             <p>
-                                {{ review.getComment() }}
+                                {{ review.content }}
 
                                 <a id="review-reject" class="secondary-content tooltipped" data-position="top" data-tooltip="reject" href="{{ path('_reviews_delete', {id: review.getId()}) }}">
                                     <i class="material-icons red-text">clear</i>
