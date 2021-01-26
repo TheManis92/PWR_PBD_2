@@ -28,7 +28,7 @@
                     <h5>{{ request.currentMovie.langs|map(o => o.name)|join(', ') }}</h5>
                     <h5>{{ request.currentMovie.countries|map(o => o.name)|join(', ') }}</h5>
                     <h5>{{ request.currentMovie.genres|map(o => o.name)|join(', ') }}</h5>
-                    <h5>{{ request.movieSubmission.cast|map(o => "#{o.name} #{o.surname}")|join(', ') }}</h5>
+                    <h5>{{ request.currentMovie.cast|map(o => "#{o.name} #{o.surname}")|join(', ') }}</h5>
                     <h4>NEW MOVIE</h4>
                     <h5>{{ request.movieSubmission.title }}</h5>
                     <h5>{{ request.movieSubmission.year }}</h5>
@@ -46,7 +46,7 @@
                     <h5>{{ request.currentMovie.langs|map(o => o.name)|join(', ') }}</h5>
                     <h5>{{ request.currentMovie.countries|map(o => o.name)|join(', ') }}</h5>
                     <h5>{{ request.currentMovie.genres|map(o => o.name)|join(', ') }}</h5>
-                    <h5>{{ request.movieSubmission.cast|map(o => "#{o.name} #{o.surname}")|join(', ') }}</h5>
+                    <h5>{{ request.currentMovie.cast|map(o => "#{o.name} #{o.surname}")|join(', ') }}</h5>
                 </div>
             {% endif %}
             <div class="row center">
