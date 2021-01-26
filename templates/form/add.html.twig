@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'form/as_theme.html.twig' %}
+
+{% block content %}
+    <div class="container">
+        <div class="section no-pad-bot">
+            <div class="row">
+                <div class="col s12">
+                    <h1 class="h3 center mb-3 font-weight-normal">
+                        {% block form_title %}Add new item{% endblock %}
+                    </h1>
+                </div>
+                {% block form_start %}
+                    {{ form_start(form, {'attr': {'class': 'col s8 offset-s2'}}) }}
+                {% endblock form_start %}
+                    <div class="row">
+                        {% block form_inputs %}
+                            {{ form_widget(form, {'attr': {'class': 'col s12'}}) }}
+                            <div class="col s12">
+                                {% block form_submit %}
+                                    <button class="btn btn-lg btn-primary" type="submit">
+                                        {% block form_submit_text %}Add{% endblock %}
+                                    </button>
+                                {% endblock form_submit %}
+                            </div>
+                        {% endblock form_inputs %}
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock content %}
