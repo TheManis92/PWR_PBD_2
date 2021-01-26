@@ -1,0 +1,107 @@
+{% extends 'form_div_layout.html.twig' %}
+
+{# Widgets #}
+
+{%- block form_widget_simple -%}
+    {%- if materialize_validate is defined -%}
+        {%- set attr = attr|merge({class: (attr.class|default('') ~ ' validate')|trim}) -%}
+        {%- if materialize_validate_errors is defined -%}
+            {%- set attr = attr|merge({'data-error': materialize_error|default('Wprowadzone dane są niepoprawne'), 'data-success': materialize_success|default('')}) -%}
+        {%- endif -%}
+    {%- endif -%}
+    {{- parent() -}}
+{%- endblock form_widget_simple -%}
+
+{%- block checkbox_widget -%}
+    <label>
+        <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+        <span>{{- form_label(form) -}}</span>
+    </label>
+{%- endblock checkbox_widget -%}
+
+{%- block radio_widget -%}
+    <label>
+        <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+        <span>{{- form_label(form, null, {translation_domain: choice_translation_domain}) -}}</span>
+    </label>
+{%- endblock radio_widget -%}
+
+
+{# radio or chechbox group #}
+{%- block choice_widget_expanded -%}
+    <div {{ block('widget_container_attributes') }}>
+        {%- for child in form %}
+            <p>
+                {{- form_widget(child, {choice_translation_domain: choice_translation_domain}) -}}
+                {# radio or checkbox label #}
+                {#
+                {{- form_label(child, null, {translation_domain: choice_translation_domain}) -}}
+                #}
+            </p>
+        {% endfor -%}
+    </div>
+{%- endblock choice_widget_expanded -%}
+
+
+{# Labels #}
+
+{%- block checkbox_label -%}
+    {% if label is not same as(false) -%}
+        {% if not compound -%}
+            {% set label_attr = label_attr|merge({'for': id}) %}
+        {%- endif -%}
+        {% if required -%}
+            {% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) %}
+        {%- endif -%}
+        {% if label is empty -%}
+            {%- if label_format is not empty -%}
+                {% set label = label_format|replace({
+                    '%name%': name,
+                    '%id%': id,
+                }) %}
+            {%- else -%}
+                {% set label = name|humanize %}
+            {%- endif -%}
+        {%- endif -%}
+        {{ label }}
+        {#
+        <{{ element|default('label') }}{% if label_attr %}{% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}{% endif %}>
+            {%- set widget_attr = {label: label} -%}
+            {{- form_widget(form, widget_attr) -}}
+        </{{ element|default('label') }}>
+        #}
+    {%- endif -%}
+{%- endblock checkbox_label -%}
+
+{% block radio_label %}
+    {{ block('checkbox_label') }}
+{% endblock radio_label %}
+
+
+{# Rows #}
+
+{%- block checkbox_row -%}
+    <p{% with {attr: row_attr} %}{{ block('attributes') }}{% endwith %}>
+        {{- form_widget(form) -}}
+        {{- form_errors(form) -}}
+        {{- form_help(form) -}}
+    </p>
+{%- endblock checkbox_row -%}
+
+{%- block radio_row -%}
+    {{ block('checkbox_row') }}
+{%- endblock radio_row -%}
+
+{%- block text_row -%}
+    {%- set widget_attr = {materialize_validate: true} -%}
+    {%- if help is not empty -%}
+        {%- set widget_attr = widget_attr|merge({attr: {'aria-describedby': id ~"_help"}}) -%}
+    {%- endif -%}
+    {%- set row_attr = row_attr|merge({class: (row_attr.class|default('') ~ ' input-field')|trim}) -%}
+    <div{% with {attr: row_attr} %}{{ block('attributes') }}{% endwith %}>
+        {{- form_widget(form, widget_attr) -}}
+        {{- form_label(form) -}}
+        {{- form_errors(form) -}}
+        {{- form_help(form) -}}
+    </div>
+{%- endblock text_row -%}
